@@ -1,15 +1,15 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionForm } from "../forms/use-action-form";
 import { savePageAction } from "@/app/actions/admin/content";
 import { FormResult } from "../forms/form-bits";
 import { Button } from "../ui/button";
 import { Field, Input, Textarea } from "../ui/form";
 
 export function PageEditor({ slug, title, body, metaDescription, canPublish }: { slug: string; title: string; body: string; metaDescription: string; canPublish: boolean }) {
-  const [state, action, pending] = useActionState(savePageAction, null);
+  const [state, onSubmit, pending] = useActionForm(savePageAction, null);
   return (
-    <form action={action} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4">
       <input type="hidden" name="slug" value={slug} />
       <Field label="Title" htmlFor="title" required><Input id="title" name="title" defaultValue={title} required /></Field>
       <Field label="Search description" htmlFor="metaDescription"><Input id="metaDescription" name="metaDescription" defaultValue={metaDescription} maxLength={300} /></Field>

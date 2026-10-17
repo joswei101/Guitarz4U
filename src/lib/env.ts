@@ -8,7 +8,6 @@ const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DATABASE_URL: z.string().min(1),
   APP_URL: z.string().url().default("http://localhost:3000"),
-  SESSION_SECRET: z.string().min(32, "SESSION_SECRET must be at least 32 characters"),
   CRON_SECRET: z.string().min(16).optional(),
 
   // PayFast (South African card gateway)
@@ -60,8 +59,8 @@ export function env(): Env {
     const issues = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
     throw new Error(`Invalid environment configuration: ${issues}`);
   }
-  if (parsed.data.NODE_ENV === "production" && parsed.data.SESSION_SECRET.startsWith("dev-")) {
-    throw new Error("SESSION_SECRET must be replaced with a strong random value in production");
+  if (parsed.data.NODE_ENV === "production" && parsed.data.CRON_SECRET?.startsWith("dev-")) {
+    throw new Error("CRON_SECRET must be replaced with a strong random value in production");
   }
   cached = parsed.data;
   return cached;

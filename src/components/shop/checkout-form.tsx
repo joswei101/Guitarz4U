@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
+import { useActionForm } from "../forms/use-action-form";
 import { placeOrderAction } from "@/app/actions/checkout";
 import { previewDiscount } from "@/app/actions/shop";
 import { Card } from "../ui/misc";
@@ -9,13 +8,11 @@ import { Button } from "../ui/button";
 import { Checkbox, Field, Input, Textarea } from "../ui/form";
 import { FormResult } from "../forms/form-bits";
 
-function ApplyButton({ applyAction }: { applyAction: (f: FormData) => void }) {
-  const { pending } = useFormStatus();
-  return <Button type="submit" variant="subtle" formAction={applyAction} formNoValidate disabled={pending}>Apply</Button>;
+function ApplyButton({ pending }: { pending: boolean }) {
+  return <Button type="submit" name="_intent" value="discount" variant="subtle" formNoValidate disabled={pending}>Apply</Button>;
 }
 
-function PayButton({ disabled }: { disabled: boolean }) {
-  const { pending } = useFormStatus();
+function PayButton({ disabled, pending }: { disabled: boolean; pending: boolean }) {
   return (
     <Button type="submit" size="lg" className="w-full" disabled={pending || disabled}>
       {pending ? "Please wait…" : disabled ? "Checkout unavailable" : "Continue to secure card payment"}
@@ -24,17 +21,17 @@ function PayButton({ disabled }: { disabled: boolean }) {
 }
 
 export function CheckoutForm({ subtotal, defaultPhone, disabled }: { subtotal: string; defaultPhone: string; disabled: boolean }) {
-  const [state, action] = useActionState(placeOrderAction, null);
-  const [discount, discountAction] = useActionState(previewDiscount, null);
+  const [state, onSubmit, pending, placeOrder] = useActionForm(placeOrderAction, null);
+  const [discount, , discountPending, applyDiscount] = useActionForm(previewDiscount, null);
   return (
     <Card className="h-fit">
-      <form action={action} className="space-y-5">
+      <form onSubmit={(e) => onSubmit(e, (data) => (data.get("_intent") === "discount" ? applyDiscount(data) : placeOrder(data)))} className="space-y-5">
         <h2 className="font-display text-xl uppercase tracking-wide">Payment summary</h2>
         <div className="flex items-end gap-2">
           <Field label="Discount code" htmlFor="discountCode" className="flex-1">
             <Input id="discountCode" name="discountCode" autoComplete="off" />
           </Field>
-          <ApplyButton applyAction={discountAction} />
+          <ApplyButton pending={discountPending} />
         </div>
         <FormResult state={discount} />
         <dl className="space-y-2 text-sm">
@@ -50,7 +47,7 @@ export function CheckoutForm({ subtotal, defaultPhone, disabled }: { subtotal: s
         </Field>
         <Checkbox id="acceptTerms" name="acceptTerms" required label="I accept the terms and conditions and the returns policy, and understand this order is for collection only in Sandringham, Johannesburg." />
         <FormResult state={state} />
-        <PayButton disabled={disabled} />
+        <PayButton disabled={disabled} pending={pending} />
         <p className="text-center text-xs text-bone-dim">You'll be taken to PayFast to pay by card. We never see or store your card details. Discounts are re-checked when you continue.</p>
       </form>
     </Card>

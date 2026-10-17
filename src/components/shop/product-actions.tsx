@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useActionForm } from "../forms/use-action-form";
 import Link from "next/link";
 import { addToCart, askQuestion, toggleWishlist } from "@/app/actions/shop";
 import { FormResult, SubmitButton } from "../forms/form-bits";
@@ -44,14 +45,14 @@ export function WishlistButton({ productId, initiallySaved }: { productId: strin
 }
 
 export function QuestionForm({ productId }: { productId: string }) {
-  const [state, action] = useActionState(askQuestion, null);
+  const [state, onSubmit, pending] = useActionForm(askQuestion, null);
   if (state?.ok) return <FormResult state={state} />;
   return (
-    <form action={action} className="space-y-3">
+    <form onSubmit={onSubmit} className="space-y-3">
       <input type="hidden" name="productId" value={productId} />
       <label htmlFor="question" className="block text-sm font-medium text-bone">Ask a question about this item</label>
       <Textarea id="question" name="question" required minLength={5} maxLength={1000} placeholder="e.g. Has the neck ever been repaired?" />
-      <SubmitButton variant="outline" pendingLabel="Sending…">Send question</SubmitButton>
+      <SubmitButton pending={pending} variant="outline" pendingLabel="Sending…">Send question</SubmitButton>
       <FormResult state={state} />
     </form>
   );

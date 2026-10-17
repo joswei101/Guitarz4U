@@ -1,16 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionForm } from "./use-action-form";
 import { submitContact } from "@/app/actions/public";
 import { Checkbox, Field, Input, Textarea } from "../ui/form";
 import { FormResult, SubmitButton, fe } from "./form-bits";
 
 export function ContactForm({ defaults }: { defaults?: { name?: string; email?: string } }) {
-  const [state, action] = useActionState(submitContact, null);
+  const [state, onSubmit, pending] = useActionForm(submitContact, null);
   if (state?.ok) return <FormResult state={state} />;
   return (
-    <form action={action} className="grid gap-4 sm:grid-cols-2">
+    <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
       <Field label="Name" htmlFor="name" required error={fe(state, "name")}><Input id="name" name="name" required autoComplete="name" defaultValue={defaults?.name} /></Field>
       <Field label="Email" htmlFor="email" required error={fe(state, "email")}><Input id="email" name="email" type="email" required autoComplete="email" defaultValue={defaults?.email} /></Field>
       <Field label="Phone (optional)" htmlFor="phone"><Input id="phone" name="phone" type="tel" autoComplete="tel" /></Field>
@@ -21,7 +21,7 @@ export function ContactForm({ defaults }: { defaults?: { name?: string; email?: 
         <Checkbox id="privacy" name="privacy" required label={<>I agree that Guitarz4U may use these details to reply to me, as described in the <Link href="/policies/privacy" className="link" target="_blank">privacy policy</Link>.</>} />
         {fe(state, "privacy") && <p className="text-xs text-danger">{fe(state, "privacy")}</p>}
         <FormResult state={state} />
-        <SubmitButton pendingLabel="Sending…">Send message</SubmitButton>
+        <SubmitButton pending={pending} pendingLabel="Sending…">Send message</SubmitButton>
       </div>
     </form>
   );

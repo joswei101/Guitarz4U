@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { prisma } from "../db";
 import { logger } from "../logger";
 import { amountsMatch, validateItn } from "../payfast";
@@ -38,17 +37,10 @@ export async function handlePayfastItn(rawBody: string, fetchImpl?: typeof fetch
     return "invalid";
   }
 
-  // Record-first for duplicate protection.
-  let event;
-  try {
-    event = await prisma.paymentEvent.create({ data: { provider: "payfast", eventKey, reference, payload: fields, signatureValid: true } });
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-      const existing = await prisma.paymentEvent.findUnique({ where: { eventKey } });
-      if (existing?.processedAt) return "duplicate";
-      event = existing!;
-    } else throw err;
-  }
+  // Record-first for duplicate protection (INSERT … ON CONFLICT DO NOTHING).
+  await prisma.paymentEvent.createMany({ data: [{ provider: "payfast", eventKey, reference, payload: fields, signatureValid: true }], skipDuplicates: true });
+  const event = await prisma.paymentEvent.findUniqueOrThrow({ where: { eventKey } });
+  if (event.processedAt) return "duplicate";
 
   type Followup = { kind: "order"; orderId: string; conflict: boolean } | { kind: "repair"; repairId: string };
   const after: { notify: Followup | null } = { notify: null };
