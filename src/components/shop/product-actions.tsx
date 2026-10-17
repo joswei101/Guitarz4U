@@ -45,10 +45,10 @@ export function WishlistButton({ productId, initiallySaved }: { productId: strin
 }
 
 export function QuestionForm({ productId }: { productId: string }) {
-  const [state, onSubmit, pending] = useActionForm(askQuestion, null);
+  const [state, onSubmit, pending, dispatch] = useActionForm(askQuestion, null);
   if (state?.ok) return <FormResult state={state} />;
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <form action={dispatch} onSubmit={onSubmit} className="space-y-3">
       <input type="hidden" name="productId" value={productId} />
       <label htmlFor="question" className="block text-sm font-medium text-bone">Ask a question about this item</label>
       <Textarea id="question" name="question" required minLength={5} maxLength={1000} placeholder="e.g. Has the neck ever been repaired?" />

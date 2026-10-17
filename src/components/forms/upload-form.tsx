@@ -45,7 +45,7 @@ export function UploadForm({ endpoint, children, submitLabel, success }: { endpo
   if (result?.ok) return <div aria-live="polite">{success(result.reference)}</div>;
   const errs = result && !result.ok && result.fieldErrors ? Object.entries(result.fieldErrors).filter(([, v]) => v?.length) : [];
   return (
-    <form ref={formRef} onSubmit={onSubmit} className="space-y-6" encType="multipart/form-data" noValidate={false}>
+    <form ref={formRef} onSubmit={onSubmit} method="post" action={endpoint} className="space-y-6" encType="multipart/form-data">
       {children}
       <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
       {result && !result.ok && (

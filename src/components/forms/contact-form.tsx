@@ -7,10 +7,10 @@ import { Checkbox, Field, Input, Textarea } from "../ui/form";
 import { FormResult, SubmitButton, fe } from "./form-bits";
 
 export function ContactForm({ defaults }: { defaults?: { name?: string; email?: string } }) {
-  const [state, onSubmit, pending] = useActionForm(submitContact, null);
+  const [state, onSubmit, pending, dispatch] = useActionForm(submitContact, null);
   if (state?.ok) return <FormResult state={state} />;
   return (
-    <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
+    <form action={dispatch} onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
       <Field label="Name" htmlFor="name" required error={fe(state, "name")}><Input id="name" name="name" required autoComplete="name" defaultValue={defaults?.name} /></Field>
       <Field label="Email" htmlFor="email" required error={fe(state, "email")}><Input id="email" name="email" type="email" required autoComplete="email" defaultValue={defaults?.email} /></Field>
       <Field label="Phone (optional)" htmlFor="phone"><Input id="phone" name="phone" type="tel" autoComplete="tel" /></Field>

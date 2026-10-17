@@ -7,9 +7,9 @@ import { Checkbox, Field, Input } from "../ui/form";
 import { FormResult, SubmitButton, fe } from "../forms/form-bits";
 
 export function LoginForm({ next }: { next?: string }) {
-  const [state, onSubmit, pending] = useActionForm(loginAction, null);
+  const [state, onSubmit, pending, dispatch] = useActionForm(loginAction, null);
   return (
-    <form onSubmit={onSubmit} className="space-y-5" noValidate>
+    <form action={dispatch} onSubmit={onSubmit} className="space-y-5" noValidate>
       <input type="hidden" name="next" value={next ?? ""} />
       <Field label="Email" htmlFor="email" error={fe(state, "email")} required>
         <Input id="email" name="email" type="email" autoComplete="email" required />
@@ -25,10 +25,10 @@ export function LoginForm({ next }: { next?: string }) {
 }
 
 export function RegisterForm() {
-  const [state, onSubmit, pending] = useActionForm(registerAction, null);
+  const [state, onSubmit, pending, dispatch] = useActionForm(registerAction, null);
   if (state?.ok) return <FormResult state={state} />;
   return (
-    <form onSubmit={onSubmit} className="space-y-5" noValidate>
+    <form action={dispatch} onSubmit={onSubmit} className="space-y-5" noValidate>
       <Field label="Full name" htmlFor="name" error={fe(state, "name")} required>
         <Input id="name" name="name" autoComplete="name" required />
       </Field>
@@ -47,9 +47,9 @@ export function RegisterForm() {
 }
 
 export function ResendVerification() {
-  const [state, onSubmit, pending] = useActionForm(resendVerificationAction, null);
+  const [state, onSubmit, pending, dispatch] = useActionForm(resendVerificationAction, null);
   return (
-    <form onSubmit={onSubmit} className="inline">
+    <form action={dispatch} onSubmit={onSubmit} className="inline">
       <SubmitButton pending={pending} variant="outline" size="sm" pendingLabel="Sending…">Resend verification email</SubmitButton>
       <div className="mt-2"><FormResult state={state} /></div>
     </form>
@@ -57,10 +57,10 @@ export function ResendVerification() {
 }
 
 export function ForgotForm() {
-  const [state, onSubmit, pending] = useActionForm(forgotPasswordAction, null);
+  const [state, onSubmit, pending, dispatch] = useActionForm(forgotPasswordAction, null);
   if (state?.ok) return <FormResult state={state} />;
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
+    <form action={dispatch} onSubmit={onSubmit} className="space-y-5">
       <Field label="Email" htmlFor="email" error={fe(state, "email")} required>
         <Input id="email" name="email" type="email" autoComplete="email" required />
       </Field>
@@ -71,9 +71,9 @@ export function ForgotForm() {
 }
 
 export function ResetForm({ token }: { token: string }) {
-  const [state, onSubmit, pending] = useActionForm(resetPasswordAction, null);
+  const [state, onSubmit, pending, dispatch] = useActionForm(resetPasswordAction, null);
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
+    <form action={dispatch} onSubmit={onSubmit} className="space-y-5">
       <input type="hidden" name="token" value={token} />
       <Field label="New password" htmlFor="password" error={fe(state, "password")} hint="At least 10 characters, with letters and numbers." required>
         <Input id="password" name="password" type="password" autoComplete="new-password" required minLength={10} />

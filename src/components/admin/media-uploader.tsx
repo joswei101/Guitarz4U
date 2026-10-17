@@ -29,7 +29,7 @@ export function MediaUploader({ productId }: { productId: string }) {
     }
   }
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <form onSubmit={onSubmit} method="post" action={`/api/admin/products/${productId}/media`} encType="multipart/form-data" className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="text-sm">Photos (JPEG/PNG/WebP, max 10 MB each, up to 8 per upload)
           <input name="photos" type="file" multiple accept="image/jpeg,image/png,image/webp" className="mt-1 block w-full text-sm text-bone-muted file:mr-3 file:rounded file:border-0 file:bg-amp file:px-3 file:py-1.5 file:text-ink" />

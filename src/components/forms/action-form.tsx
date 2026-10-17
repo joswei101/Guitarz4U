@@ -14,11 +14,12 @@ type LooseAct = (prev: ActionResult<unknown> | null, form: FormData) => Promise<
  * Used across account and admin screens.
  */
 export function ActionForm({ action, children, submitLabel, pendingLabel, variant, className, hideOnSuccess, confirm }: { action: Act; children: ReactNode; submitLabel: string; pendingLabel?: string; variant?: "primary" | "outline" | "danger" | "subtle"; className?: string; hideOnSuccess?: boolean; confirm?: string }) {
-  const [state, onSubmit, pending] = useActionForm(action as unknown as LooseAct, null);
+  const [state, onSubmit, pending, dispatch] = useActionForm(action as unknown as LooseAct, null);
   if (hideOnSuccess && state?.ok) return <FormResult state={state} />;
   const fieldErrs = state && !state.ok && state.fieldErrors ? Object.entries(state.fieldErrors).filter(([, v]) => v?.length) : [];
   return (
     <form
+      action={dispatch}
       onSubmit={(e) => {
         if (confirm && !window.confirm(confirm)) return e.preventDefault();
         onSubmit(e);

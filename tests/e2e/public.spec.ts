@@ -169,3 +169,16 @@ test.describe("accounts & forms", () => {
 test("unknown products return a real 404", async ({ request }) => {
   expect((await request.get("/shop/no-such-guitar")).status()).toBe(404);
 });
+
+test("forms submitted before JavaScript loads never put credentials in the URL", async ({ browser }) => {
+  const ctx = await browser.newContext({ javaScriptEnabled: false });
+  const page = await ctx.newPage();
+  await page.goto("/login");
+  await page.locator("#email").fill("nobody@example.com");
+  await page.locator("#password").fill("secret-password-1");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.waitForLoadState("load");
+  expect(page.url()).not.toContain("password");
+  expect(page.url()).not.toContain("secret");
+  await ctx.close();
+});

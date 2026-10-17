@@ -7,10 +7,10 @@ import { FormResult, SubmitButton } from "./form-bits";
 import { Input } from "../ui/form";
 
 export function NewsletterForm({ idPrefix = "nl" }: { idPrefix?: string }) {
-  const [state, onSubmit, pending] = useActionForm(subscribeNewsletter, null);
+  const [state, onSubmit, pending, dispatch] = useActionForm(subscribeNewsletter, null);
   if (state?.ok) return <FormResult state={state} />;
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <form action={dispatch} onSubmit={onSubmit} className="space-y-3">
       <div className="flex flex-col gap-2 sm:flex-row">
         <label htmlFor={`${idPrefix}-email`} className="sr-only">Email address</label>
         <Input id={`${idPrefix}-email`} name="email" type="email" required placeholder="you@example.com" autoComplete="email" className="sm:flex-1" />

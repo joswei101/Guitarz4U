@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+storage
+storage-test
+test-results
+playwright-report
+.env
+docs/legacy

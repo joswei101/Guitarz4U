@@ -3,6 +3,7 @@ import { mailtoLink, site, whatsappLink } from "@/lib/site";
 import { Wordmark } from "../ui/logo";
 import { NewsletterForm } from "../forms/newsletter-form";
 import { MailIcon, PinIcon, WhatsAppIcon } from "./icons";
+import { WhatsAppFloatGate } from "./whatsapp-gate";
 
 const cols = [
   { title: "Shop", links: [["/shop", "All guitars & gear"], ["/shop?category=electric-guitars", "Electric guitars"], ["/shop?category=bass-guitars", "Bass guitars"], ["/shop?category=acoustic-guitars", "Acoustic guitars"], ["/shop?category=amplifiers", "Amplifiers"], ["/shop?category=parts", "Selected parts"]] },
@@ -55,8 +56,10 @@ export function Footer() {
 
 export function WhatsAppFloat() {
   return (
+    <WhatsAppFloatGate>
     <a href={whatsappLink("Hi Guitarz4U, I have a question:")} target="_blank" rel="noopener noreferrer" aria-label={`Chat with Guitarz4U on WhatsApp (${site.whatsappDisplay})`} className="fixed bottom-5 right-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-white shadow-lg shadow-black/40 transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amp">
       <WhatsAppIcon className="h-7 w-7" />
     </a>
+    </WhatsAppFloatGate>
   );
 }

@@ -25,7 +25,7 @@ export function CheckoutForm({ subtotal, defaultPhone, disabled }: { subtotal: s
   const [discount, , discountPending, applyDiscount] = useActionForm(previewDiscount, null);
   return (
     <Card className="h-fit">
-      <form onSubmit={(e) => onSubmit(e, (data) => (data.get("_intent") === "discount" ? applyDiscount(data) : placeOrder(data)))} className="space-y-5">
+      <form action={placeOrder} onSubmit={(e) => onSubmit(e, (data) => (data.get("_intent") === "discount" ? applyDiscount(data) : placeOrder(data)))} className="space-y-5">
         <h2 className="font-display text-xl uppercase tracking-wide">Payment summary</h2>
         <div className="flex items-end gap-2">
           <Field label="Discount code" htmlFor="discountCode" className="flex-1">
