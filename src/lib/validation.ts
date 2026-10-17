@@ -77,8 +77,10 @@ export function formToObject(form: FormData, arrays: string[] = []): Record<stri
   const out: Record<string, unknown> = {};
   for (const [k, v] of form.entries()) {
     if (typeof v !== "string") continue;
-    if (arrays.includes(k)) (out[k] = (out[k] as string[] | undefined) ?? []), (out[k] as string[]).push(v);
-    else out[k] = v === "" ? undefined : v;
+    if (arrays.includes(k)) {
+      out[k] = (out[k] as string[] | undefined) ?? [];
+      (out[k] as string[]).push(v);
+    } else out[k] = v === "" ? undefined : v;
   }
   for (const a of arrays) out[a] ??= [];
   return out;

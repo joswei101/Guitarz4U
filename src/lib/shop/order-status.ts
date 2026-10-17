@@ -30,6 +30,8 @@ export const ADMIN_ORDER_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>
   PAYMENT_FAILED: ["CANCELLED"],
   EXPIRED: ["CANCELLED"],
   CANCELLED: ["REFUND_PENDING"],
+  // If a refund request is declined, the order can resume its normal flow.
+  REFUND_PENDING: ["COLLECTION_PENDING", "READY_FOR_COLLECTION", "COLLECTED", "CANCELLED"],
 };
 
 export const PAID_STATUSES: OrderStatus[] = ["PAID", "COLLECTION_PENDING", "READY_FOR_COLLECTION", "COLLECTED", "CANCELLATION_REQUESTED", "REFUND_PENDING", "REFUNDED"];

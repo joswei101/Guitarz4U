@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUserPage } from "@/lib/auth/guards";
@@ -76,7 +77,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
       {CUSTOMER_CANCELLABLE.includes(order.status) && (
         <Card>
           <h2 className="font-display text-xl uppercase">Request cancellation</h2>
-          <p className="mt-2 text-sm text-bone-muted">The owner reviews every cancellation request. See the <a className="link" href="/policies/returns">returns, refunds & cancellations policy</a>.</p>
+          <p className="mt-2 text-sm text-bone-muted">The owner reviews every cancellation request. See the <Link className="link" href="/policies/returns">returns, refunds & cancellations policy</Link>.</p>
           <ActionForm action={requestOrderCancellationAction} submitLabel="Request cancellation" variant="outline" hideOnSuccess className="mt-4 space-y-4">
             <input type="hidden" name="orderId" value={order.id} />
             <Field label="Reason" htmlFor="reason" required><Textarea id="reason" name="reason" required minLength={5} /></Field>

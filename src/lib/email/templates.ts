@@ -86,6 +86,11 @@ export const templates = {
     action: { label: "View answer", url: appUrl(`/shop/${d.slug}#questions`) },
   }),
 
+  accountDeleted: (d: { name: string; resolution: string }): EmailContent => ({
+    subject: "Your Guitarz4U account has been deleted",
+    paragraphs: [`Hi ${d.name},`, "As you requested, your Guitarz4U account and profile information have been deleted. Records we are legally required to keep (such as completed order, payment and repair invoices) have been retained and are no longer linked to a login.", d.resolution],
+  }),
+
   adminAlert: (d: { title: string; lines: [string, string][]; path: string }): EmailContent => ({
     subject: `[Guitarz4U admin] ${d.title}`,
     paragraphs: [d.title],
