@@ -1,0 +1,27 @@
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  reactStrictMode: true,
+  serverExternalPackages: ["@node-rs/argon2", "sharp"],
+  experimental: {
+    // Server actions only carry form fields; file uploads go through dedicated route handlers.
+    serverActions: { bodySizeLimit: "1mb" },
+  },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+        ],
+      },
+    ];
+  },
+};
+
+export default nextConfig;
