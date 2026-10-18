@@ -26,11 +26,11 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
           </div>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-1 p-4">
+      <div className="flex flex-1 flex-col gap-1 p-3 sm:p-4">
         <p className="text-xs uppercase tracking-wider text-tan">
           {[product.brand_name, product.category_name].filter(Boolean).join(" · ")}
         </p>
-        <h3 className="text-lg leading-snug">
+        <h3 className="text-base leading-snug sm:text-lg">
           <Link href={`/shop/${product.slug}`} className="after:absolute after:inset-0 focus-visible:outline-none">
             {product.title}
           </Link>
@@ -46,7 +46,7 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
 
 export function ProductGrid({ products, priorityCount = 0 }: { products: ProductCardData[]; priorityCount?: number }) {
   return (
-    <ul className="grid grid-cols-1 gap-5 min-[480px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((p, i) => (
         <li key={p.id} className="fade-up" style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}>
           <ProductCard product={p} priority={i < priorityCount} />
@@ -58,7 +58,7 @@ export function ProductGrid({ products, priorityCount = 0 }: { products: Product
 
 export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
   return (
-    <ul className="grid grid-cols-1 gap-5 min-[480px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-busy="true" aria-label="Loading products">
+    <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4" aria-busy="true" aria-label="Loading products">
       {Array.from({ length: count }).map((_, i) => (
         <li key={i} className="card overflow-hidden">
           <div className="skeleton aspect-[4/5] rounded-none" />

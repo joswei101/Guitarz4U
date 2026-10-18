@@ -1,16 +1,17 @@
 "use client";
+import { useFormAction } from "@/components/forms/useFormAction";
 import Link from "next/link";
-import { useActionState } from "react";
+
 import { requestPasswordReset, signIn, signUp, updatePassword } from "@/app/actions/auth";
 import { Checkbox, Field, Honeypot } from "./Field";
 import { SubmitButton } from "./SubmitButton";
 import { Alert } from "@/components/ui/Alert";
 
 export function LoginForm({ next }: { next: string }) {
-  const [state, action] = useActionState(signIn, null);
+  const { state, onSubmit, pending: submitting } = useFormAction(signIn);
   const errors = state && !state.ok ? (state.fieldErrors ?? {}) : {};
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form onSubmit={onSubmit} className="space-y-4" noValidate>
       <input type="hidden" name="next" value={next} />
       {state && !state.ok && <Alert tone="error">{state.error}</Alert>}
       <Field label="Email address" name="email" type="email" autoComplete="email" required error={errors.email} />
@@ -20,7 +21,7 @@ export function LoginForm({ next }: { next: string }) {
           Forgot your password?
         </Link>
       </div>
-      <SubmitButton pendingText="Signing in…" className="btn btn-primary w-full">
+      <SubmitButton pending={submitting} pendingText="Signing in…" className="btn btn-primary w-full">
         Sign in
       </SubmitButton>
     </form>
@@ -28,11 +29,11 @@ export function LoginForm({ next }: { next: string }) {
 }
 
 export function RegisterForm({ next }: { next: string }) {
-  const [state, action] = useActionState(signUp, null);
+  const { state, onSubmit, pending: submitting } = useFormAction(signUp);
   const errors = state && !state.ok ? (state.fieldErrors ?? {}) : {};
   if (state?.ok) return <Alert tone="success" title="Check your email">{state.message}</Alert>;
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form onSubmit={onSubmit} className="space-y-4" noValidate>
       <input type="hidden" name="next" value={next} />
       <Honeypot />
       {state && !state.ok && <Alert tone="error">{state.error}</Alert>}
@@ -65,7 +66,7 @@ export function RegisterForm({ next }: { next: string }) {
           </>
         }
       />
-      <SubmitButton pendingText="Creating account…" className="btn btn-primary w-full">
+      <SubmitButton pending={submitting} pendingText="Creating account…" className="btn btn-primary w-full">
         Create account
       </SubmitButton>
     </form>
@@ -73,13 +74,13 @@ export function RegisterForm({ next }: { next: string }) {
 }
 
 export function ForgotPasswordForm() {
-  const [state, action] = useActionState(requestPasswordReset, null);
+  const { state, onSubmit, pending: submitting } = useFormAction(requestPasswordReset);
   if (state?.ok) return <Alert tone="success">{state.message}</Alert>;
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form onSubmit={onSubmit} className="space-y-4" noValidate>
       {state && !state.ok && <Alert tone="error">{state.error}</Alert>}
       <Field label="Email address" name="email" type="email" autoComplete="email" required />
-      <SubmitButton pendingText="Sending…" className="btn btn-primary w-full">
+      <SubmitButton pending={submitting} pendingText="Sending…" className="btn btn-primary w-full">
         Email me a reset link
       </SubmitButton>
     </form>
@@ -87,7 +88,7 @@ export function ForgotPasswordForm() {
 }
 
 export function ResetPasswordForm() {
-  const [state, action] = useActionState(updatePassword, null);
+  const { state, onSubmit, pending: submitting } = useFormAction(updatePassword);
   const errors = state && !state.ok ? (state.fieldErrors ?? {}) : {};
   if (state?.ok)
     return (
@@ -99,11 +100,11 @@ export function ResetPasswordForm() {
       </div>
     );
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form onSubmit={onSubmit} className="space-y-4" noValidate>
       {state && !state.ok && <Alert tone="error">{state.error}</Alert>}
       <Field label="New password" name="password" type="password" autoComplete="new-password" required error={errors.password} hint="At least 8 characters, including a letter and a number." />
       <Field label="Confirm new password" name="confirm" type="password" autoComplete="new-password" required error={errors.confirm} />
-      <SubmitButton pendingText="Saving…" className="btn btn-primary w-full">
+      <SubmitButton pending={submitting} pendingText="Saving…" className="btn btn-primary w-full">
         Save new password
       </SubmitButton>
     </form>

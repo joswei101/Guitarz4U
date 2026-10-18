@@ -50,7 +50,7 @@ function render(title: string, body: string, link: string | null) {
   return { text, html };
 }
 
-export async function flushEmailOutbox(limit = 20) {
+export async function flushEmailOutbox(limit = 50) {
   if (!isEmailConfigured()) return { sent: 0, skipped: true };
   const admin = createAdminClient();
   if (!admin) return { sent: 0, skipped: true };
@@ -60,7 +60,7 @@ export async function flushEmailOutbox(limit = 20) {
     .select("id, audience, user_id, title, body, link")
     .eq("email_status", "pending")
     .gte("created_at", new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString())
-    .order("created_at")
+    .order("created_at", { ascending: false }) // newest first: current requests are never stuck behind a backlog
     .limit(limit);
   if (!pending?.length) return { sent: 0, skipped: false };
 

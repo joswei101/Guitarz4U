@@ -69,7 +69,9 @@ export function CartView({ signedIn, defaults }: { signedIn: boolean; defaults: 
   const unavailableItems = cart.items.filter((i) => !isAvailable(i));
   const total = availableItems.reduce((sum, i) => sum + Number(fresh[i.id]?.price ?? i.price) * i.quantity, 0);
 
-  const submit = (formData: FormData) => {
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     setError(null);
     setFieldErrors({});
     if (formData.get("website")) return;
@@ -176,7 +178,7 @@ export function CartView({ signedIn, defaults }: { signedIn: boolean; defaults: 
             None of the items in your cart are currently available.
           </Alert>
         ) : (
-          <form ref={formRef} action={submit} className="mt-4 space-y-5" noValidate>
+          <form ref={formRef} onSubmit={submit} className="mt-4 space-y-5" noValidate>
             <Honeypot />
             {error && <Alert tone="error">{error}</Alert>}
             <ContactFields defaults={defaults} errors={fieldErrors} />

@@ -1,16 +1,17 @@
 "use client";
-import { useActionState } from "react";
+import { useFormAction } from "@/components/forms/useFormAction";
+
 import { sendContactMessage } from "@/app/actions/requests";
 import { Field, Honeypot, TextArea } from "./Field";
 import { SubmitButton } from "./SubmitButton";
 import { Alert } from "@/components/ui/Alert";
 
 export function ContactForm({ defaults }: { defaults: { name?: string | null; email?: string | null; phone?: string | null } }) {
-  const [state, action] = useActionState(sendContactMessage, null);
+  const { state, onSubmit, pending: submitting } = useFormAction(sendContactMessage);
   const e = state && !state.ok ? (state.fieldErrors ?? {}) : {};
   if (state?.ok) return <Alert tone="success" title="Message sent">{state.message}</Alert>;
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form onSubmit={onSubmit} className="space-y-4" noValidate>
       <Honeypot />
       {state && !state.ok && <Alert tone="error">{state.error}</Alert>}
       <Field label="Your name" name="name" required autoComplete="name" defaultValue={defaults.name ?? ""} error={e.name} maxLength={120} />
@@ -21,7 +22,7 @@ export function ContactForm({ defaults }: { defaults: { name?: string | null; em
       <Field label="Subject" name="subject" maxLength={150} error={e.subject} />
       <TextArea label="Message" name="message" required rows={5} maxLength={4000} error={e.message} />
       <p className="text-xs text-tan">We use your details only to reply to you. See our privacy policy.</p>
-      <SubmitButton pendingText="Sending…">Send message</SubmitButton>
+      <SubmitButton pending={submitting} pendingText="Sending…">Send message</SubmitButton>
     </form>
   );
 }

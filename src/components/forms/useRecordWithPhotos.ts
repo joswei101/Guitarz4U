@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import type { ActionResult } from "@/lib/validation";
 import { uploadPrivatePhotos } from "@/lib/upload";
 
@@ -20,7 +20,9 @@ export function useRecordWithPhotos(opts: {
   const [progress, setProgress] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const submit = (formData: FormData) => {
+  const submit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     setError(null);
     setErrors({});
     startTransition(async () => {

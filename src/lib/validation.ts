@@ -167,9 +167,10 @@ export function formDataToObject(fd: FormData, arrays: string[] = []) {
   for (const [key, value] of fd.entries()) {
     if (key.startsWith("$ACTION")) continue;
     if (arrays.includes(key)) {
-      (obj[key] as unknown[] | undefined) ? (obj[key] as unknown[]).push(value) : (obj[key] = [value]);
+      if (Array.isArray(obj[key])) (obj[key] as unknown[]).push(value);
+      else obj[key] = [value];
     } else {
-      obj[key] = typeof value === "string" ? value : value;
+      obj[key] = value;
     }
   }
   for (const a of arrays) if (!obj[a]) obj[a] = [];

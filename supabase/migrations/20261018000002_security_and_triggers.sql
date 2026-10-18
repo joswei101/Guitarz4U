@@ -49,7 +49,9 @@ returns text
 language sql
 immutable
 as $$
-  select 'R ' || trim(to_char(amount, 'FM999G999G990D00'));
+  select 'R ' || replace(
+    case when amount = trunc(amount) then to_char(amount, 'FM999,999,990')
+         else to_char(amount, 'FM999,999,990.00') end, ',', ' ');
 $$;
 
 create or replace function private.status_label(p_entity text, p_status text)

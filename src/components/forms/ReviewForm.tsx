@@ -1,5 +1,6 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useFormAction } from "@/components/forms/useFormAction";
+import { useState } from "react";
 import { Star } from "lucide-react";
 import { submitReview } from "@/app/actions/requests";
 import { Field, Honeypot, TextArea } from "./Field";
@@ -7,12 +8,12 @@ import { SubmitButton } from "./SubmitButton";
 import { Alert } from "@/components/ui/Alert";
 
 export function ReviewForm({ defaultName }: { defaultName: string }) {
-  const [state, action] = useActionState(submitReview, null);
+  const { state, onSubmit, pending: submitting } = useFormAction(submitReview);
   const [rating, setRating] = useState(0);
   const e = state && !state.ok ? (state.fieldErrors ?? {}) : {};
   if (state?.ok) return <Alert tone="success">{state.message}</Alert>;
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form onSubmit={onSubmit} className="space-y-4" noValidate>
       <Honeypot />
       {state && !state.ok && <Alert tone="error">{state.error}</Alert>}
       <fieldset>
@@ -32,7 +33,7 @@ export function ReviewForm({ defaultName }: { defaultName: string }) {
       <Field label="Title (optional)" name="title" maxLength={120} error={e.title} />
       <TextArea label="Your review" name="body" required rows={5} minLength={20} maxLength={2000} error={e.body} />
       <p className="text-xs text-tan">Reviews are checked before publication. Please don&apos;t include personal details or links.</p>
-      <SubmitButton pendingText="Submitting…">Submit review</SubmitButton>
+      <SubmitButton pending={submitting} pendingText="Submitting…">Submit review</SubmitButton>
     </form>
   );
 }

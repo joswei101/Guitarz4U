@@ -6,10 +6,11 @@ export function formatRand(value: number | string | null | undefined, opts: { ce
   const n = typeof value === "string" ? Number(value) : value;
   if (!Number.isFinite(n)) return "—";
   const showCents = opts.cents ?? !Number.isInteger(n);
-  const formatted = new Intl.NumberFormat("en-ZA", {
-    minimumFractionDigits: showCents ? 2 : 0,
-    maximumFractionDigits: showCents ? 2 : 0,
-  }).format(n);
+  // Deterministic South African style (space as thousands separator, "." for cents)
+  // so server and browser render identically.
+  const [whole, cents] = Math.abs(n).toFixed(showCents ? 2 : 0).split(".");
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  const formatted = `${n < 0 ? "-" : ""}${grouped}${cents ? "." + cents : ""}`;
   return `R ${formatted}`;
 }
 

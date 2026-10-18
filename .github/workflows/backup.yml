@@ -1,0 +1,72 @@
+# Daily ENCRYPTED backup of the Supabase database (+ optional photos), and a
+# keep-alive ping so the free Supabase project is not paused for inactivity.
+# Setup: see docs/BACKUP_AND_RESTORE.md. Needs repository secrets:
+#   SUPABASE_DB_URL        (Session pooler connection string, with password)
+#   BACKUP_PASSPHRASE      (a long password you keep somewhere safe)
+#   NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (keep-alive)
+#   SUPABASE_SECRET_KEY    (optional — only for backing up photos)
+name: Backup & keep-alive
+on:
+  schedule:
+    - cron: "17 1 * * *" # daily 03:17 South African time
+  workflow_dispatch:
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HAS_DB: ${{ secrets.SUPABASE_DB_URL != '' }}
+      HAS_PING: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL != '' }}
+      HAS_STORAGE: ${{ secrets.SUPABASE_SECRET_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Keep the Supabase project active
+        if: env.HAS_PING == 'true'
+        run: |
+          curl -fsS "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}/rest/v1/categories?select=id&limit=1" \
+            -H "apikey: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}" > /dev/null
+
+      - uses: supabase/setup-cli@v1
+        if: env.HAS_DB == 'true'
+        with:
+          version: latest
+
+      - name: Dump database
+        if: env.HAS_DB == 'true'
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          mkdir -p backup
+          supabase db dump --db-url "$DB_URL" -f backup/roles.sql --role-only
+          supabase db dump --db-url "$DB_URL" -f backup/schema.sql
+          supabase db dump --db-url "$DB_URL" -f backup/data.sql --use-copy --data-only
+
+      - uses: actions/setup-node@v4
+        if: env.HAS_STORAGE == 'true'
+        with:
+          node-version: 22
+
+      - name: Download photos (optional)
+        if: env.HAS_STORAGE == 'true'
+        env:
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: npm install --no-save @supabase/supabase-js && node scripts/backup-storage.mjs backup/storage
+
+      - name: Encrypt backup
+        if: env.HAS_DB == 'true'
+        env:
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          test -n "$PASSPHRASE" || (echo "BACKUP_PASSPHRASE secret is missing" && exit 1)
+          tar czf backup.tar.gz backup
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$PASSPHRASE" --symmetric --cipher-algo AES256 -o "guitarz4u-backup-$(date +%F).tar.gz.gpg" backup.tar.gz
+          rm -rf backup backup.tar.gz
+
+      - uses: actions/upload-artifact@v4
+        if: env.HAS_DB == 'true'
+        with:
+          name: guitarz4u-backup-${{ github.run_id }}
+          path: guitarz4u-backup-*.tar.gz.gpg
+          retention-days: 30

@@ -48,7 +48,7 @@ export function TextArea({
   required,
   className = "",
   ...props
-}: Common & React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+}: Common & React.ComponentProps<"textarea">) {
   const id = useId();
   return (
     <div className={className}>

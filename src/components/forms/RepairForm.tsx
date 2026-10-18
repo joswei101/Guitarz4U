@@ -21,7 +21,7 @@ export function RepairForm({ userId, defaults, preselect }: { userId: string; de
   const e = f.errors;
   const today = new Date().toISOString().slice(0, 10);
   return (
-    <form action={f.submit} className="space-y-8" noValidate>
+    <form onSubmit={f.submit} className="space-y-8" noValidate>
       <Honeypot />
       {f.error && <Alert tone="error">{f.error}</Alert>}
       <ContactFields defaults={defaults} errors={e} />
