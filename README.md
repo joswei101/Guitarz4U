@@ -69,4 +69,5 @@ docs/              deployment, testing, security, launch checklist
 - [docs/TESTING.md](docs/TESTING.md): how to run the tests, plus the recorded results
 - [docs/SECURITY.md](docs/SECURITY.md): security & privacy design (POPIA notes)
 - [docs/LAUNCH-CHECKLIST.md](docs/LAUNCH-CHECKLIST.md): outstanding credentials, costs, approvals and legal decisions
+- [docs/screenshots/](docs/screenshots): preview screenshots of the main pages (desktop, admin and mobile)
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): key workflows (stock reservation, payments, repairs, enquiries) and the role/permission matrix
