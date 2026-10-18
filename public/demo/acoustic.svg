@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Illustration of an acoustic guitar (demo image)">
+  <rect width="400" height="500" fill="#ECDFC6"/>
+  <circle cx="200" cy="330" r="190" fill="#F5EBD8"/>
+  <defs>
+    <radialGradient id="burst" cx="50%" cy="62%" r="60%">
+      <stop offset="0" stop-color="#E9B96B"/><stop offset="0.55" stop-color="#B9772F"/><stop offset="1" stop-color="#3A1F10"/>
+    </radialGradient>
+    <linearGradient id="neck" x1="0" x2="1"><stop offset="0" stop-color="#5A3A22"/><stop offset="1" stop-color="#7A5233"/></linearGradient>
+    <linearGradient id="natural" x1="0" x2="1"><stop offset="0" stop-color="#D9B27A"/><stop offset="1" stop-color="#C4955A"/></linearGradient>
+  </defs>
+    <path d="M184 22 L216 22 L220 90 L180 90 Z" fill="#2A1A10"/><circle cx="176" cy="34" r="4" fill="#CFC6B5"/><circle cx="224" cy="34" r="4" fill="#CFC6B5"/><circle cx="176" cy="52" r="4" fill="#CFC6B5"/><circle cx="224" cy="52" r="4" fill="#CFC6B5"/><circle cx="176" cy="70" r="4" fill="#CFC6B5"/><circle cx="224" cy="70" r="4" fill="#CFC6B5"/>
+    <rect x="188" y="90" width="24" height="168" fill="url(#neck)"/>
+    <line x1="189" x2="211" y1="112.6" y2="112.6" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="128.1" y2="128.1" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="142.8" y2="142.8" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="156.5" y2="156.5" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="169.5" y2="169.5" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="181.6" y2="181.6" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="193.1" y2="193.1" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="203.8" y2="203.8" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="213.9" y2="213.9" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="223.4" y2="223.4" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="232.3" y2="232.3" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="240.7" y2="240.7" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="248.6" y2="248.6" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="256.0" y2="256.0" stroke="#C9C2B4" stroke-width="1.4"/>
+    <ellipse cx="200" cy="300" rx="72" ry="58" fill="url(#natural)"/>
+    <ellipse cx="200" cy="404" rx="96" ry="78" fill="url(#natural)"/>
+    <rect x="140" y="320" width="120" height="40" fill="url(#natural)"/>
+    <circle cx="200" cy="318" r="24" fill="#2A1A10"/>
+    <circle cx="200" cy="318" r="30" fill="none" stroke="#7A5233" stroke-width="3"/>
+    <path d="M220 340 C250 345 262 380 248 400 L228 392 C238 376 232 356 216 352 Z" fill="#5A3A22" opacity="0.8"/>
+    <rect x="170" y="420" width="60" height="12" rx="3" fill="#3A2414"/>
+    <line x1="192" x2="190.5" y1="90" y2="426" stroke="#EDE6D6" stroke-width="0.8" opacity="0.9"/><line x1="195.2" x2="194.29999999999998" y1="90" y2="426" stroke="#EDE6D6" stroke-width="0.8" opacity="0.9"/><line x1="198.4" x2="198.1" y1="90" y2="426" stroke="#EDE6D6" stroke-width="0.8" opacity="0.9"/><line x1="201.6" x2="201.9" y1="90" y2="426" stroke="#EDE6D6" stroke-width="0.8" opacity="0.9"/><line x1="204.8" x2="205.70000000000002" y1="90" y2="426" stroke="#EDE6D6" stroke-width="0.8" opacity="0.9"/><line x1="208" x2="209.5" y1="90" y2="426" stroke="#EDE6D6" stroke-width="0.8" opacity="0.9"/>
+  <rect x="12" y="462" width="128" height="26" rx="13" fill="#2D5677"/>
+  <text x="76" y="480" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">DEMO IMAGE</text>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Illustration of a bass guitar (demo image)">
+  <rect width="400" height="500" fill="#ECDFC6"/>
+  <circle cx="200" cy="330" r="190" fill="#F5EBD8"/>
+  <defs>
+    <radialGradient id="burst" cx="50%" cy="62%" r="60%">
+      <stop offset="0" stop-color="#E9B96B"/><stop offset="0.55" stop-color="#B9772F"/><stop offset="1" stop-color="#3A1F10"/>
+    </radialGradient>
+    <linearGradient id="neck" x1="0" x2="1"><stop offset="0" stop-color="#5A3A22"/><stop offset="1" stop-color="#7A5233"/></linearGradient>
+    <linearGradient id="natural" x1="0" x2="1"><stop offset="0" stop-color="#D9B27A"/><stop offset="1" stop-color="#C4955A"/></linearGradient>
+  </defs>
+      <path d="M190 14 L212 14 L224 70 L182 70 Z" fill="#2A1A10"/>
+      <circle cx="180" cy="22" r="5" fill="#CFC6B5"/><circle cx="222" cy="22" r="5" fill="#CFC6B5"/><circle cx="180" cy="40" r="5" fill="#CFC6B5"/><circle cx="222" cy="40" r="5" fill="#CFC6B5"/>
+      <rect x="189" y="70" width="22" height="200" fill="url(#neck)"/>
+      <line x1="189" x2="211" y1="92.2" y2="92.2" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="107.5" y2="107.5" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="121.8" y2="121.8" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="135.3" y2="135.3" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="148.0" y2="148.0" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="159.9" y2="159.9" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="171.1" y2="171.1" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="181.6" y2="181.6" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="191.5" y2="191.5" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="200.8" y2="200.8" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="209.5" y2="209.5" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="217.7" y2="217.7" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="225.5" y2="225.5" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="232.7" y2="232.7" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="239.6" y2="239.6" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="246.0" y2="246.0" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="252.0" y2="252.0" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="257.7" y2="257.7" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="263.0" y2="263.0" stroke="#C9C2B4" stroke-width="1.4"/><line x1="189" x2="211" y1="268.0" y2="268.0" stroke="#C9C2B4" stroke-width="1.4"/>
+      <path d="M200 250 C168 246 140 236 128 214 C120 236 126 262 140 284 C150 300 146 318 132 336 C112 362 106 398 118 430 C132 466 168 480 204 478 C244 476 280 458 288 424 C296 392 282 366 264 346 C254 330 256 314 268 298 C284 276 292 248 284 222 C272 240 248 252 200 250 Z" fill="url(#natural)" stroke="#F3E3C3" stroke-width="3"/>
+      <path d="M150 300 C170 290 236 290 254 300 L262 380 C240 392 168 392 146 380 Z" fill="#F6EEDC" opacity="0.85"/>
+      <rect x="182" y="320" width="36" height="16" rx="5" fill="#1E1410"/>
+      <rect x="178" y="420" width="44" height="12" rx="3" fill="#C9C2B4"/>
+      <circle cx="256" cy="412" r="7" fill="#2A1A10"/><circle cx="262" cy="436" r="7" fill="#2A1A10"/>
+      <line x1="192" x2="191.1" y1="70" y2="426" stroke="#EDE6D6" stroke-width="0.8" opacity="0.9"/><line x1="197.33333333333334" x2="197.03333333333333" y1="70" y2="426" stroke="#EDE6D6" stroke-width="0.8" opacity="0.9"/><line x1="202.66666666666666" x2="202.96666666666667" y1="70" y2="426" stroke="#EDE6D6" stroke-width="0.8" opacity="0.9"/><line x1="208" x2="208.9" y1="70" y2="426" stroke="#EDE6D6" stroke-width="0.8" opacity="0.9"/>
+  <rect x="12" y="462" width="128" height="26" rx="13" fill="#2D5677"/>
+  <text x="76" y="480" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">DEMO IMAGE</text>
+</svg>
