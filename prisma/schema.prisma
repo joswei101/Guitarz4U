@@ -1,0 +1,1062 @@
+// Guitarz4U database schema.
+// All money values are stored as integer cents (ZAR) to avoid floating-point errors.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Users, roles, sessions
+// ─────────────────────────────────────────────────────────────
+
+/// Roles are deliberately an enum: the permission matrix lives in code
+/// (src/lib/permissions.ts) so it cannot be altered by editing database rows.
+enum Role {
+  ADMIN
+  CONTENT_MANAGER
+  CUSTOMER
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  DELETION_REQUESTED
+  DELETED
+}
+
+model User {
+  id                String        @id @default(cuid())
+  email             String        @unique
+  passwordHash      String
+  name              String
+  phone             String?
+  role              Role          @default(CUSTOMER)
+  status            AccountStatus @default(ACTIVE)
+  emailVerifiedAt   DateTime?
+  suspendedReason   String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  lastLoginAt       DateTime?
+
+  profile           CustomerProfile?
+  sessions          Session[]
+  tokens            AuthToken[]
+  addresses         Address[]
+  orders            Order[]
+  cartItems         CartItem[]
+  wishlist          WishlistItem[]
+  reviews           Review[]
+  questions         ProductQuestion[]
+  repairRequests    RepairRequest[]
+  purchaseEnquiries PurchaseEnquiry[]
+  contactEnquiries  ContactEnquiry[]
+  auditLogs         AuditLog[]        @relation("AuditActor")
+  deletionRequests  AccountDeletionRequest[]
+  notifications     Notification[]
+
+  @@index([role])
+  @@index([status])
+}
+
+model CustomerProfile {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Notification preferences
+  emailOrderUpdates     Boolean  @default(true)
+  emailRepairUpdates    Boolean  @default(true)
+  emailMarketing        Boolean  @default(false)
+  /// Explicit opt-in for automated WhatsApp messages (only used if an official integration is configured)
+  whatsappOptIn         Boolean  @default(false)
+  whatsappOptInAt       DateTime?
+  privacyAcceptedAt     DateTime?
+  termsAcceptedAt       DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String   @default("Home")
+  line1      String
+  line2      String?
+  suburb     String?
+  city       String
+  province   String
+  postalCode String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  /// SHA-256 hash of the session token. The raw token is only ever held in the user's cookie.
+  tokenHash  String   @unique
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  ipAddress  String?
+  userAgent  String?
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+enum AuthTokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model AuthToken {
+  id         String        @id @default(cuid())
+  tokenHash  String        @unique
+  type       AuthTokenType
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime      @default(now())
+
+  @@index([userId, type])
+}
+
+model RateLimit {
+  key        String   @id
+  count      Int
+  windowEnds DateTime
+
+  @@index([windowEnds])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Catalogue & inventory
+// ─────────────────────────────────────────────────────────────
+
+model Category {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  /// Parts and accessories can be stocked in quantity (low-stock alerts apply)
+  isPartsCategory Boolean @default(false)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum ProductStatus {
+  DRAFT
+  AVAILABLE
+  RESERVED
+  SOLD
+  UNAVAILABLE
+}
+
+enum ConditionRating {
+  MINT
+  EXCELLENT
+  VERY_GOOD
+  GOOD
+  FAIR
+  FOR_REPAIR
+}
+
+model Product {
+  id               String          @id @default(cuid())
+  slug             String          @unique
+  sku              String          @unique
+  title            String
+  brand            String
+  model            String
+  categoryId       String
+  category         Category        @relation(fields: [categoryId], references: [id])
+  description      String
+  priceCents       Int
+  salePriceCents   Int?
+  condition        ConditionRating
+  conditionNotes   String
+  /// Free-form key/value specifications e.g. {"Body": "Mahogany", "Frets": "22"}
+  specifications   Json            @default("{}")
+  status           ProductStatus   @default(DRAFT)
+  /// Physical units in stock. Guitars are always 1 (unique items); selected parts may hold more.
+  quantity         Int             @default(1)
+  lowStockThreshold Int?
+  isLeftHanded     Boolean         @default(false)
+  isFeatured       Boolean         @default(false)
+  // Private financial records — never exposed publicly
+  acquisitionCostCents   Int?
+  refurbishmentCostCents Int?
+  acquiredAt       DateTime?
+  sourceEnquiryId  String?         @unique
+  sourceEnquiry    PurchaseEnquiry? @relation(fields: [sourceEnquiryId], references: [id])
+  privateNotes     String?
+  publishedAt      DateTime?
+  soldAt           DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  viewCount        Int             @default(0)
+
+  media            ProductMedia[]
+  reservations     StockReservation[]
+  orderItems       OrderItem[]
+  reviews          Review[]
+  questions        ProductQuestion[]
+  wishlistedBy     WishlistItem[]
+  cartItems        CartItem[]
+  priceSuggestions PriceSuggestion[]
+
+  @@index([status, categoryId])
+  @@index([status, createdAt])
+  @@index([brand])
+  @@index([isFeatured])
+}
+
+enum MediaKind {
+  IMAGE
+  VIDEO
+}
+
+/// Generic uploaded file. Public files (product media) can be served to anyone;
+/// private files (enquiry/repair uploads) only to their owner and staff.
+model StoredFile {
+  id           String    @id @default(cuid())
+  storageKey   String    @unique
+  kind         MediaKind
+  mimeType     String
+  sizeBytes    Int
+  width        Int?
+  height       Int?
+  isPublic     Boolean   @default(false)
+  ownerUserId  String?
+  originalName String?
+  createdAt    DateTime  @default(now())
+
+  productMedia     ProductMedia?
+  enquiryMedia     PurchaseEnquiryMedia?
+  repairMedia      RepairMedia?
+}
+
+model ProductMedia {
+  id         String     @id @default(cuid())
+  productId  String
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  fileId     String     @unique
+  file       StoredFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  altText    String?
+  sortOrder  Int        @default(0)
+  createdAt  DateTime   @default(now())
+
+  @@index([productId, sortOrder])
+}
+
+enum PriceSuggestionStatus {
+  PENDING
+  APPROVED
+  DISMISSED
+}
+
+/// AI-assisted pricing estimates. Never applied automatically; owner must approve.
+model PriceSuggestion {
+  id             String                @id @default(cuid())
+  productId      String
+  product        Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+  suggestedCents Int
+  lowCents       Int?
+  highCents      Int?
+  rationale      String
+  source         String
+  status         PriceSuggestionStatus @default(PENDING)
+  decidedById    String?
+  decidedAt      DateTime?
+  createdAt      DateTime              @default(now())
+
+  @@index([productId])
+}
+
+enum ReservationStatus {
+  ACTIVE
+  CONVERTED
+  RELEASED
+  EXPIRED
+}
+
+model StockReservation {
+  id         String            @id @default(cuid())
+  productId  String
+  product    Product           @relation(fields: [productId], references: [id])
+  orderId    String
+  order      Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  quantity   Int               @default(1)
+  status     ReservationStatus @default(ACTIVE)
+  expiresAt  DateTime
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@index([productId, status, expiresAt])
+  @@index([orderId])
+  @@index([status, expiresAt])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Sell-your-guitar purchase enquiries
+// ─────────────────────────────────────────────────────────────
+
+enum EnquiryStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  MORE_INFO_REQUESTED
+  OFFER_MADE
+  COUNTER_OFFER_RECEIVED
+  OFFER_ACCEPTED
+  OFFER_DECLINED
+  DECLINED
+  PURCHASE_COMPLETED
+  CONVERTED_TO_INVENTORY
+  WITHDRAWN
+}
+
+model PurchaseEnquiry {
+  id              String        @id @default(cuid())
+  reference       String        @unique
+  userId          String?
+  user            User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name            String
+  email           String
+  phone           String
+  instrumentType  String
+  brand           String?
+  model           String?
+  condition       String
+  faults          String?
+  details         String?
+  status          EnquiryStatus @default(SUBMITTED)
+  privacyConsentAt DateTime
+  /// Final agreed purchase price, once completed
+  agreedPriceCents Int?
+  purchasedAt     DateTime?
+  adminNotes      String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  media           PurchaseEnquiryMedia[]
+  offers          PurchaseOffer[]
+  events          EnquiryEvent[]
+  product         Product?
+
+  @@index([status, createdAt])
+  @@index([email])
+}
+
+model PurchaseEnquiryMedia {
+  id        String          @id @default(cuid())
+  enquiryId String
+  enquiry   PurchaseEnquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  fileId    String          @unique
+  file      StoredFile      @relation(fields: [fileId], references: [id], onDelete: Cascade)
+}
+
+enum OfferParty {
+  BUSINESS
+  SELLER
+}
+
+enum OfferStatus {
+  OPEN
+  ACCEPTED
+  DECLINED
+  SUPERSEDED
+  WITHDRAWN
+}
+
+model PurchaseOffer {
+  id          String          @id @default(cuid())
+  enquiryId   String
+  enquiry     PurchaseEnquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  party       OfferParty
+  amountCents Int
+  message     String?
+  status      OfferStatus     @default(OPEN)
+  createdById String?
+  respondedAt DateTime?
+  createdAt   DateTime        @default(now())
+
+  @@index([enquiryId, createdAt])
+}
+
+/// Full negotiation & status history for an enquiry
+model EnquiryEvent {
+  id          String          @id @default(cuid())
+  enquiryId   String
+  enquiry     PurchaseEnquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  type        String
+  fromStatus  EnquiryStatus?
+  toStatus    EnquiryStatus?
+  message     String?
+  /// Whether this message is visible to the seller
+  isCustomerVisible Boolean   @default(false)
+  actorId     String?
+  createdAt   DateTime        @default(now())
+
+  @@index([enquiryId, createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Orders, payments, refunds, discounts
+// ─────────────────────────────────────────────────────────────
+
+enum OrderStatus {
+  AWAITING_PAYMENT
+  PAYMENT_PROCESSING
+  PAYMENT_FAILED
+  EXPIRED
+  PAID
+  COLLECTION_PENDING
+  READY_FOR_COLLECTION
+  COLLECTED
+  CANCELLATION_REQUESTED
+  CANCELLED
+  REFUND_PENDING
+  REFUNDED
+}
+
+model Order {
+  id                 String       @id @default(cuid())
+  orderNumber        String       @unique
+  userId             String
+  user               User         @relation(fields: [userId], references: [id])
+  status             OrderStatus  @default(AWAITING_PAYMENT)
+  subtotalCents      Int
+  discountCents      Int          @default(0)
+  totalCents         Int
+  currency           String       @default("ZAR")
+  discountCodeId     String?
+  discountCode       DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  customerName       String
+  customerEmail      String
+  customerPhone      String?
+  customerNotes      String?
+  termsAcceptedAt    DateTime
+  /// Private collection arrangement details, shown only to the order's customer once set
+  collectionDetails  String?
+  collectionScheduledFor DateTime?
+  collectedAt        DateTime?
+  paidAt             DateTime?
+  cancellationReason String?
+  adminNotes         String?
+  /// Set when a verified payment arrives for stock that could not be secured (e.g. after expiry)
+  requiresAttention  Boolean      @default(false)
+  attentionReason    String?
+  reservationExpiresAt DateTime?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  items              OrderItem[]
+  payments           Payment[]
+  refunds            Refund[]
+  reservations       StockReservation[]
+  statusHistory      OrderStatusHistory[]
+  discountRedemption DiscountRedemption?
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product @relation(fields: [productId], references: [id])
+  /// Snapshot of product details at time of purchase
+  title          String
+  sku            String
+  unitPriceCents Int
+  quantity       Int     @default(1)
+  lineTotalCents Int
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model OrderStatusHistory {
+  id         String       @id @default(cuid())
+  orderId    String
+  order      Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromStatus OrderStatus?
+  toStatus   OrderStatus
+  note       String?
+  actorId    String?
+  createdAt  DateTime     @default(now())
+
+  @@index([orderId, createdAt])
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETE
+  FAILED
+  CANCELLED
+}
+
+enum PaymentPurpose {
+  ORDER
+  REPAIR
+}
+
+model Payment {
+  id               String         @id @default(cuid())
+  /// Our reference sent to the gateway (m_payment_id). Unique per attempt.
+  reference        String         @unique
+  purpose          PaymentPurpose
+  orderId          String?
+  order            Order?         @relation(fields: [orderId], references: [id])
+  repairRequestId  String?
+  repairRequest    RepairRequest? @relation(fields: [repairRequestId], references: [id])
+  provider         String         @default("payfast")
+  /// Gateway transaction id (pf_payment_id); unique so a transaction can never be applied twice
+  providerPaymentId String?       @unique
+  amountCents      Int
+  feeCents         Int?
+  netCents         Int?
+  status           PaymentStatus  @default(PENDING)
+  rawStatus        String?
+  verifiedAt       DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  refunds          Refund[]
+
+  @@index([orderId])
+  @@index([repairRequestId])
+}
+
+/// Every inbound webhook/ITN is recorded before processing (duplicate-event protection + audit trail)
+model PaymentEvent {
+  id          String   @id @default(cuid())
+  provider    String
+  /// provider-unique event key (e.g. pf_payment_id + payment_status)
+  eventKey    String   @unique
+  reference   String?
+  payload     Json
+  signatureValid Boolean
+  processedAt DateTime?
+  outcome     String?
+  createdAt   DateTime @default(now())
+
+  @@index([reference])
+}
+
+enum RefundStatus {
+  REQUESTED
+  APPROVED
+  DECLINED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model Refund {
+  id                String       @id @default(cuid())
+  orderId           String
+  order             Order        @relation(fields: [orderId], references: [id])
+  paymentId         String?
+  payment           Payment?     @relation(fields: [paymentId], references: [id])
+  amountCents       Int
+  reason            String
+  status            RefundStatus @default(REQUESTED)
+  decisionNote      String?
+  decidedById       String?
+  decidedAt         DateTime?
+  /// Gateway reference proving the refund was processed — required before status COMPLETED
+  gatewayReference  String?
+  gatewayConfirmedAt DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([orderId])
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+model DiscountCode {
+  id              String       @id @default(cuid())
+  code            String       @unique
+  description     String?
+  type            DiscountType
+  /// Percentage (1-100) or fixed amount in cents
+  value           Int
+  minOrderCents   Int?
+  maxUses         Int?
+  maxUsesPerUser  Int?         @default(1)
+  usedCount       Int          @default(0)
+  validFrom       DateTime?
+  validUntil      DateTime?
+  categoryId      String?
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  orders          Order[]
+  redemptions     DiscountRedemption[]
+}
+
+model DiscountRedemption {
+  id             String       @id @default(cuid())
+  discountCodeId String
+  discountCode   DiscountCode @relation(fields: [discountCodeId], references: [id])
+  orderId        String       @unique
+  order          Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId         String
+  createdAt      DateTime     @default(now())
+
+  @@index([discountCodeId, userId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Repairs
+// ─────────────────────────────────────────────────────────────
+
+enum RepairStatus {
+  SUBMITTED
+  AWAITING_REVIEW
+  ACCEPTED_FOR_ASSESSMENT
+  AWAITING_ASSESSMENT
+  QUOTE_PREPARED
+  AWAITING_CUSTOMER_APPROVAL
+  QUOTE_ACCEPTED
+  IN_PROGRESS
+  AWAITING_PARTS
+  COMPLETED
+  PAYMENT_DUE
+  PAID
+  READY_FOR_COLLECTION
+  COLLECTED
+  DECLINED
+  CANCELLED
+}
+
+model RepairRequest {
+  id                String       @id @default(cuid())
+  reference         String       @unique
+  userId            String?
+  user              User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name              String
+  email             String
+  phone             String
+  instrumentType    String
+  brand             String?
+  model             String?
+  problem           String
+  services          String[]
+  notes             String?
+  preferredDate     DateTime?
+  preferredTimeNote String?
+  status            RepairStatus @default(SUBMITTED)
+  privacyConsentAt  DateTime
+  /// Private drop-off / appointment arrangements (never public)
+  dropOffDetails    String?
+  appointmentAt     DateTime?
+  declineReason     String?
+  completedAt       DateTime?
+  collectedAt       DateTime?
+  internalNotes     String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  media             RepairMedia[]
+  quotes            RepairQuote[]
+  statusHistory     RepairStatusHistory[]
+  payments          Payment[]
+  manualPayments    RepairPayment[]
+  warranty          WarrantyRecord?
+
+  @@index([status, createdAt])
+  @@index([userId])
+  @@index([email])
+}
+
+model RepairMedia {
+  id        String        @id @default(cuid())
+  repairId  String
+  repair    RepairRequest @relation(fields: [repairId], references: [id], onDelete: Cascade)
+  fileId    String        @unique
+  file      StoredFile    @relation(fields: [fileId], references: [id], onDelete: Cascade)
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  DECLINED
+  SUPERSEDED
+}
+
+model RepairQuote {
+  id               String        @id @default(cuid())
+  repairId         String
+  repair           RepairRequest @relation(fields: [repairId], references: [id], onDelete: Cascade)
+  version          Int
+  status           QuoteStatus   @default(DRAFT)
+  labourCents      Int           @default(0)
+  partsCents       Int           @default(0)
+  totalCents       Int           @default(0)
+  notes            String?
+  /// Warranty terms offered with this quote (duration and conditions set per job)
+  warrantyDays     Int?
+  warrantyTerms    String?
+  exclusions       String?
+  validUntil       DateTime?
+  sentAt           DateTime?
+  approvedByOwnerId String?
+  customerAcceptedAt DateTime?
+  customerDeclinedAt DateTime?
+  acceptedIp       String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  lineItems        RepairQuoteLineItem[]
+
+  @@unique([repairId, version])
+}
+
+enum QuoteLineType {
+  LABOUR
+  PART
+}
+
+model RepairQuoteLineItem {
+  id             String        @id @default(cuid())
+  quoteId        String
+  quote          RepairQuote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  type           QuoteLineType
+  description    String
+  quantity       Int           @default(1)
+  unitPriceCents Int
+  totalCents     Int
+  /// Internal cost to the business (for profit reporting). Not shown to customers.
+  costCents      Int?
+}
+
+model RepairStatusHistory {
+  id         String        @id @default(cuid())
+  repairId   String
+  repair     RepairRequest @relation(fields: [repairId], references: [id], onDelete: Cascade)
+  fromStatus RepairStatus?
+  toStatus   RepairStatus
+  note       String?
+  isCustomerVisible Boolean @default(true)
+  actorId    String?
+  createdAt  DateTime      @default(now())
+
+  @@index([repairId, createdAt])
+}
+
+enum RepairPaymentMethod {
+  CARD_ONLINE
+  CARD_IN_PERSON
+  EFT
+  CASH
+}
+
+/// Repair payments recorded by staff (in person / EFT) or created from a verified online card payment.
+model RepairPayment {
+  id          String              @id @default(cuid())
+  repairId    String
+  repair      RepairRequest       @relation(fields: [repairId], references: [id], onDelete: Cascade)
+  amountCents Int
+  method      RepairPaymentMethod
+  reference   String?
+  /// Links to a gateway-verified Payment when method = CARD_ONLINE
+  paymentId   String?             @unique
+  recordedById String?
+  receivedAt  DateTime            @default(now())
+  notes       String?
+}
+
+model WarrantyRecord {
+  id         String        @id @default(cuid())
+  repairId   String        @unique
+  repair     RepairRequest @relation(fields: [repairId], references: [id], onDelete: Cascade)
+  startsAt   DateTime
+  endsAt     DateTime
+  terms      String
+  exclusions String?
+  createdAt  DateTime      @default(now())
+}
+
+// ─────────────────────────────────────────────────────────────
+// Reviews, questions, contact, newsletter
+// ─────────────────────────────────────────────────────────────
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REMOVED
+}
+
+enum ReviewSubject {
+  PRODUCT
+  REPAIR
+  GENERAL
+}
+
+model Review {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject     ReviewSubject
+  productId   String?
+  product     Product?         @relation(fields: [productId], references: [id], onDelete: SetNull)
+  repairId    String?
+  rating      Int
+  title       String?
+  body        String
+  /// Display name chosen by customer at submission (defaults to first name)
+  displayName String
+  status      ModerationStatus @default(PENDING)
+  isVerifiedPurchase Boolean   @default(false)
+  moderatedById String?
+  moderatedAt DateTime?
+  moderationNote String?
+  createdAt   DateTime         @default(now())
+
+  @@index([status, createdAt])
+  @@index([productId, status])
+}
+
+model ProductQuestion {
+  id           String           @id @default(cuid())
+  productId    String
+  product      Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question     String
+  answer       String?
+  answeredById String?
+  answeredAt   DateTime?
+  status       ModerationStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+
+  @@index([productId, status])
+  @@index([status, createdAt])
+}
+
+enum ContactStatus {
+  NEW
+  IN_PROGRESS
+  RESOLVED
+  SPAM
+}
+
+model ContactEnquiry {
+  id        String        @id @default(cuid())
+  reference String        @unique
+  userId    String?
+  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  isSupport Boolean       @default(false)
+  status    ContactStatus @default(NEW)
+  adminNotes String?
+  privacyConsentAt DateTime
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status, createdAt])
+}
+
+enum SubscriptionStatus {
+  PENDING
+  SUBSCRIBED
+  UNSUBSCRIBED
+}
+
+model NewsletterSubscription {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  status            SubscriptionStatus @default(PENDING)
+  /// Hash of a token used for double opt-in confirmation and one-click unsubscribe
+  tokenHash         String             @unique
+  consentText       String
+  consentAt         DateTime
+  confirmedAt       DateTime?
+  unsubscribedAt    DateTime?
+  createdAt         DateTime           @default(now())
+}
+
+// ─────────────────────────────────────────────────────────────
+// Content, notifications, audit, settings
+// ─────────────────────────────────────────────────────────────
+
+enum ContentStatus {
+  PUBLISHED
+  PENDING_APPROVAL
+  DRAFT
+}
+
+/// Editable pages: policies, about, process etc. Content managers submit drafts; the owner publishes.
+model Page {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  title           String
+  metaDescription String?
+  body            String
+  draftTitle      String?
+  draftBody       String?
+  draftStatus     ContentStatus?
+  draftById       String?
+  /// Legal/policy documents that must be reviewed by the owner or a professional
+  requiresLegalReview Boolean   @default(false)
+  publishedAt     DateTime?
+  publishedById   String?
+  updatedAt       DateTime      @updatedAt
+  createdAt       DateTime      @default(now())
+}
+
+model Faq {
+  id        String        @id @default(cuid())
+  question  String
+  answer    String
+  category  String        @default("General")
+  sortOrder Int           @default(0)
+  status    ContentStatus @default(PUBLISHED)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model Banner {
+  id         String        @id @default(cuid())
+  heading    String
+  subheading String?
+  ctaLabel   String?
+  ctaHref    String?
+  sortOrder  Int           @default(0)
+  status     ContentStatus @default(PUBLISHED)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}
+
+enum NotificationChannel {
+  EMAIL
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  QUEUED
+  SENT
+  FAILED
+  SKIPPED_NOT_CONFIGURED
+  SKIPPED_NO_CONSENT
+}
+
+model Notification {
+  id          String              @id @default(cuid())
+  userId      String?
+  user        User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  channel     NotificationChannel
+  template    String
+  recipient   String
+  subject     String?
+  status      NotificationStatus  @default(QUEUED)
+  error       String?
+  providerMessageId String?
+  sentAt      DateTime?
+  createdAt   DateTime            @default(now())
+
+  @@index([status, createdAt])
+  @@index([userId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorId, createdAt])
+  @@index([createdAt])
+}
+
+enum DeletionRequestStatus {
+  PENDING
+  COMPLETED
+  REJECTED
+}
+
+model AccountDeletionRequest {
+  id          String                @id @default(cuid())
+  userId      String
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reason      String?
+  status      DeletionRequestStatus @default(PENDING)
+  resolution  String?
+  resolvedById String?
+  resolvedAt  DateTime?
+  createdAt   DateTime              @default(now())
+
+  @@index([status])
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+/// Lightweight, privacy-friendly page-view counter (no cookies, no IPs, no personal data)
+model PageViewDaily {
+  id    String   @id @default(cuid())
+  day   DateTime @db.Date
+  path  String
+  views Int      @default(0)
+
+  @@unique([day, path])
+}

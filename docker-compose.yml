@@ -1,0 +1,33 @@
+# Single-server deployment: app + PostgreSQL + persistent volumes.
+# Usage: cp .env.example .env (fill it in) && docker compose up -d --build
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: guitarz4u
+      POSTGRES_USER: guitarz4u
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guitarz4u"]
+      interval: 10s
+      retries: 5
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://guitarz4u:${POSTGRES_PASSWORD}@db:5432/guitarz4u?schema=public
+      LOCAL_STORAGE_DIR: /app/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3000:3000"   # put Caddy/Nginx in front for HTTPS
+    volumes:
+      - uploads:/app/storage
+volumes:
+  pgdata:
+  uploads:
