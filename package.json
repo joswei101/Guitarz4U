@@ -1,0 +1,44 @@
+{
+  "name": "guitarz4u",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Guitarz4U — second-hand guitar shop with purchase requests, seller submissions, repairs and an admin dashboard. No online payments.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed-demo": "tsx scripts/seed-demo.ts",
+    "db:remove-demo": "tsx scripts/remove-demo.ts",
+    "admin:create": "tsx scripts/create-admin.ts",
+    "backup:db": "bash scripts/backup-db.sh",
+    "check:no-payments": "tsx scripts/check-no-payments.ts",
+    "test:e2e": "playwright test"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1144.0",
+    "better-auth": "1.7.7",
+    "next": "16.3.8",
+    "nodemailer": "10.0.13",
+    "pg": "8.23.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "0.0.1",
+    "sharp": "0.35.5",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.19.0",
+    "@types/nodemailer": "8.0.2",
+    "@types/pg": "8.23.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
