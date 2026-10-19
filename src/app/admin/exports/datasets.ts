@@ -1,0 +1,17 @@
+export const DATASETS: Record<string, { label: string; table: string; select: string; filter?: [string, string]; order?: string; description: string }> = {
+  products: { label: "Inventory (all products)", table: "products", select: "*, brand:brands(name), category:categories(name), private:product_private(serial_number, acquisition_notes, internal_notes)", order: "created_at", description: "Every product including drafts, sold and archived, with private serial numbers." },
+  "sold-products": { label: "Sold products archive", table: "products", select: "*, brand:brands(name), category:categories(name), private:product_private(serial_number)", filter: ["status", "sold"], order: "sold_at", description: "Your private record of sold guitars." },
+  "product-images": { label: "Product image list", table: "product_images", select: "*", order: "created_at", description: "Storage paths of product photographs (for image backups)." },
+  "purchase-requests": { label: "Purchase requests", table: "purchase_requests", select: "*", order: "created_at", description: "All purchase requests and their EFT/collection status." },
+  "purchase-request-items": { label: "Purchase request items", table: "purchase_request_items", select: "*", order: "created_at", description: "Items and prices on each request." },
+  reservations: { label: "Reservations", table: "reservations", select: "*", order: "created_at", description: "All reservation requests." },
+  "seller-submissions": { label: "Seller submissions", table: "seller_submissions", select: "*", order: "created_at", description: "Guitars offered to you." },
+  "seller-offers": { label: "Seller offers", table: "seller_offers", select: "*", order: "created_at", description: "Offers you have made and responses." },
+  "repair-bookings": { label: "Repair bookings", table: "repair_bookings", select: "*", order: "created_at", description: "All repair bookings and quotes." },
+  "status-updates": { label: "Status history", table: "status_updates", select: "*", order: "created_at", description: "Every customer-visible status update." },
+  "admin-notes": { label: "Private admin notes", table: "admin_notes", select: "*", order: "created_at", description: "Your private notes." },
+  customers: { label: "Customer accounts", table: "profiles", select: "*", order: "created_at", description: "Contact details of registered customers (handle with care — POPIA)." },
+  reviews: { label: "Reviews", table: "reviews", select: "*", order: "created_at", description: "All reviews and moderation status." },
+  enquiries: { label: "Enquiries", table: "enquiries", select: "*", order: "created_at", description: "Contact form and product questions." },
+  "audit-log": { label: "Audit log", table: "audit_logs", select: "*", order: "created_at", description: "Record of important changes." },
+};
