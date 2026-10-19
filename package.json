@@ -6,7 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:types": "supabase gen types typescript --local > src/lib/database.types.ts",
+    "test:db": "node --test --test-concurrency=1 \"tests/integration/*.test.mjs\"",
+    "test:e2e": "playwright test",
+    "check:no-payments": "node scripts/check-no-payment-gateways.mjs",
+    "make-admin": "node scripts/make-admin.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -30,5 +39,8 @@
     "supabase": "^2.121.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   }
 }

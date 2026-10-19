@@ -28,7 +28,7 @@ export default async function LoginPage({ searchParams }: Props) {
     >
       {error === "link" && (
         <p role="alert" className="mb-4 rounded-lg bg-danger-bg p-3 text-sm text-danger">
-          That link is invalid or has expired. Please sign in, or request a new link.
+          That link is invalid or has expired. If you were confirming your email, try signing in — it may already be confirmed. Otherwise, request a new link.
         </p>
       )}
       {GOOGLE_AUTH_ENABLED && (

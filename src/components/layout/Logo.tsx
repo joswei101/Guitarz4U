@@ -42,7 +42,7 @@ export function Logo({ dark = true, showTagline = true }: { dark?: boolean; show
         </span>
         {showTagline && (
           <span
-            className={`mt-1 hidden text-[0.62rem] font-semibold uppercase tracking-[0.18em] sm:block ${dark ? "text-gold" : "text-muted"}`}
+            className={`mt-1 hidden text-[0.62rem] font-semibold uppercase tracking-[0.18em] sm:block xl:hidden 2xl:block ${dark ? "text-gold" : "text-muted"}`}
           >
             Second-hand equipment, first-hand service
           </span>

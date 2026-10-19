@@ -28,22 +28,22 @@ export function ProductCard({ product, priority = false }: { product: ProductSum
             {product.is_featured && !reserved && !onOffer && <span className="badge bg-deep/85 text-cream shadow-sm">Featured</span>}
           </div>
           {product.is_demo && (
-            <span className="absolute bottom-3 left-3 badge bg-white/90 text-walnut shadow-sm">Demonstration listing</span>
+            <span className="absolute bottom-2 left-2 badge bg-white/90 text-walnut shadow-sm">Demo listing</span>
           )}
         </div>
       </Link>
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+      <div className="flex flex-1 flex-col gap-1.5 p-3 sm:gap-2 sm:p-4">
+        <p className="truncate text-[0.68rem] font-semibold uppercase tracking-wider text-muted sm:text-xs">
           {product.brand?.name ?? "Unbranded"} · {product.category?.name.replace(" guitars", "") ?? "Guitar"}
         </p>
-        <h3 className="font-display text-lg leading-snug">
+        <h3 className="font-display text-base leading-snug sm:text-lg">
           <Link href={`/shop/${product.slug}`} className="no-underline after:absolute after:inset-0 hover:text-gold-ink">
             {product.title}
           </Link>
         </h3>
-        <div className="mt-auto flex items-end justify-between gap-3 pt-2">
+        <div className="mt-auto flex flex-wrap items-end justify-between gap-x-3 gap-y-1 pt-2">
           <div>
-            <p className="font-display text-xl font-semibold text-walnut">{formatZAR(product.price)}</p>
+            <p className="font-display text-lg font-semibold text-walnut sm:text-xl">{formatZAR(product.price)}</p>
             {onOffer && (
               <p className="text-sm text-ink-soft line-through" aria-label={`Was ${formatZAR(product.compare_at_price)}`}>
                 {formatZAR(product.compare_at_price)}
@@ -59,7 +59,7 @@ export function ProductCard({ product, priority = false }: { product: ProductSum
 
 export function ProductGrid({ products, priorityCount = 0 }: { products: ProductSummary[]; priorityCount?: number }) {
   return (
-    <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((p, i) => (
         <li key={p.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}>
           <ProductCard product={p} priority={i < priorityCount} />

@@ -87,7 +87,7 @@ export const repairBookingSchema = z.object({
   preferred_contact: contactMethod,
   guitar_brand: z.string().trim().min(1, "Please enter the brand.").max(60),
   guitar_model: trimmed(100).optional().default(""),
-  category_id: z.coerce.number().int().positive().optional(),
+  category_id: z.preprocess((v) => (v === "" || v === null ? undefined : v), z.coerce.number().int().positive().optional()),
   services: z
     .array(z.enum(["strings", "setup", "electronics", "body", "hardware", "fretwork", "other"]))
     .min(1, "Please choose at least one type of work."),

@@ -9,6 +9,7 @@ try {
 }
 const supabaseWs = supabaseOrigin.replace(/^http/, "ws");
 const isDev = process.env.NODE_ENV !== "production";
+const isHttps = (process.env.NEXT_PUBLIC_SITE_URL || "").startsWith("https://");
 
 // Content Security Policy. No third-party scripts are loaded; there are
 // deliberately no payment-provider domains anywhere in this policy.
@@ -23,7 +24,7 @@ const csp = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
-  isDev ? "" : "upgrade-insecure-requests",
+  isHttps ? "upgrade-insecure-requests" : "",
 ]
   .filter(Boolean)
   .join("; ");

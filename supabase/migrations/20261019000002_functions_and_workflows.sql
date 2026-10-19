@@ -129,6 +129,21 @@ end;
 $$;
 
 -- ---------------------------------------------------------------------------
+-- South African rand formatting for messages, e.g. R3 200 or R1 650,50
+-- ---------------------------------------------------------------------------
+create or replace function public.format_zar(p_amount numeric)
+returns text
+language sql
+immutable
+set search_path = ''
+as $$
+  select 'R' || replace(to_char(trunc(abs(p_amount)), 'FM999,999,999,990'), ',', ' ')
+    || case when abs(p_amount) <> trunc(abs(p_amount))
+            then ',' || lpad(round((abs(p_amount) - trunc(abs(p_amount))) * 100)::int::text, 2, '0')
+            else '' end;
+$$;
+
+-- ---------------------------------------------------------------------------
 -- Status labels (used in notifications)
 -- ---------------------------------------------------------------------------
 create or replace function public.status_label(p_status text)
@@ -506,7 +521,7 @@ begin
     'We will review your request and contact you to confirm availability. No payment has been taken and your purchase is not confirmed yet.',
     '/account/requests/' || v_request.id);
   perform public.notify_admins('New purchase request ' || v_request.reference,
-    v_request.contact_name || ' requested ' || v_count || ' item(s), estimated R' || to_char(v_total, 'FM999G999G990D00'),
+    v_request.contact_name || ' requested ' || v_count || ' item(s), estimated ' || public.format_zar(v_total),
     '/admin/requests/' || v_request.id);
 
   return query select v_request.id, v_request.reference;
@@ -778,10 +793,10 @@ begin
 
   insert into public.status_updates (entity_type, entity_id, status, message, created_by)
   values ('seller_submission', v_sub.id, v_new_status::text,
-    case when p_accept then 'Seller accepted the offer of R' || to_char(v_offer.amount, 'FM999G999G990D00') || '. Guitarz4U will contact you to arrange the next steps.'
+    case when p_accept then 'Seller accepted the offer of ' || public.format_zar(v_offer.amount) || '. Guitarz4U will contact you to arrange the next steps.'
          else 'Seller declined the offer.' end, v_uid);
   perform public.notify_admins('Offer ' || case when p_accept then 'accepted' else 'declined' end || ' for ' || v_sub.reference,
-    v_sub.brand || ' ' || v_sub.model || ' — R' || to_char(v_offer.amount, 'FM999G999G990D00'), '/admin/submissions/' || v_sub.id);
+    v_sub.brand || ' ' || v_sub.model || ' — ' || public.format_zar(v_offer.amount), '/admin/submissions/' || v_sub.id);
 end;
 $$;
 
@@ -1270,7 +1285,7 @@ begin
   returning id into v_offer_id;
   update public.seller_submissions set status = 'offer_made' where id = p_submission_id;
   perform public.record_status_update('seller_submission', p_submission_id, 'offer_made',
-    'Offer: R' || to_char(p_amount, 'FM999G999G990D00') || coalesce('. ' || nullif(trim(p_message), ''), ''),
+    'Offer: ' || public.format_zar(p_amount) || coalesce('. ' || nullif(trim(p_message), ''), ''),
     v_sub.user_id, 'You have an offer for ' || v_sub.brand || ' ' || v_sub.model, '/account/selling/' || p_submission_id);
   return v_offer_id;
 end;
@@ -1331,7 +1346,7 @@ begin
         quote_provided_at = now(), customer_quote_response = null, customer_quote_response_at = null
   where id = p_booking_id;
   perform public.record_status_update('repair_booking', p_booking_id, 'quote_provided',
-    'Quote: R' || to_char(p_amount, 'FM999G999G990D00') || coalesce('. ' || nullif(trim(p_message), ''), ''),
+    'Quote: ' || public.format_zar(p_amount) || coalesce('. ' || nullif(trim(p_message), ''), ''),
     v_booking.user_id, 'Repair quote for ' || v_booking.reference, '/account/repairs/' || p_booking_id);
 end;
 $$;

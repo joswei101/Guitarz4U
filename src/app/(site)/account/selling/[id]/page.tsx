@@ -35,6 +35,7 @@ export default async function SubmissionDetail({ params }: { params: Promise<{ i
   const photos = await signedUploadUrls(s.images.map((i) => i.storage_path));
   const offers = [...s.offers].sort((a, b) => b.created_at.localeCompare(a.created_at));
   const pending = offers.find((o) => o.status === "pending");
+  const accepted = s.status === "offer_accepted" ? offers.find((o) => o.status === "accepted") : undefined;
 
   return (
     <div className="space-y-6">
@@ -48,6 +49,13 @@ export default async function SubmissionDetail({ params }: { params: Promise<{ i
         <StatusBadge status={s.status} label={SELLER_STATUS_LABELS[s.status]} />
       </div>
       <p className="text-sm text-ink-soft">Reference {s.reference} · submitted {formatDateTime(s.created_at)}</p>
+
+      {accepted && (
+        <p role="status" className="rounded-lg bg-success-bg p-4 text-sm text-success">
+          You accepted the offer of {formatZAR(accepted.amount)} on {formatDateTime(accepted.responded_at)}. Guitarz4U will contact you privately to
+          arrange inspection, payment and handover.
+        </p>
+      )}
 
       {pending && (
         <section className="card border-gold p-5" aria-labelledby="offer-heading">

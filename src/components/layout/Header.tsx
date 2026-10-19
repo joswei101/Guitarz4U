@@ -41,12 +41,12 @@ export async function Header({ announcement }: { announcement?: string }) {
       <div className="container-page flex h-[4.5rem] items-center justify-between gap-4">
         <Logo />
 
-        <nav aria-label="Main" className="hidden items-center gap-5 xl:flex">
+        <nav aria-label="Main" className="hidden items-center gap-4 xl:flex 2xl:gap-6">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-[0.82rem] font-semibold uppercase tracking-wider text-cream/85 no-underline transition-colors hover:text-gold-light"
+              className="whitespace-nowrap text-[0.8rem] font-semibold uppercase tracking-wider text-cream/85 no-underline transition-colors hover:text-gold-light"
             >
               {link.label}
             </Link>

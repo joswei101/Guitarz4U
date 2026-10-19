@@ -72,7 +72,7 @@ export function TextField({
     <div className={`field ${className}`}>
       <label htmlFor={input.id ?? name} className="label">
         {label}
-        {required && <span className="text-danger"> *</span>}
+        {required && <span className="text-danger" aria-hidden="true"> *</span>}
       </label>
       <input
         id={input.id ?? name}
@@ -111,7 +111,7 @@ export function TextArea({
     <div className={`field ${className}`}>
       <label htmlFor={input.id ?? name} className="label">
         {label}
-        {required && <span className="text-danger"> *</span>}
+        {required && <span className="text-danger" aria-hidden="true"> *</span>}
       </label>
       <textarea
         id={input.id ?? name}
@@ -155,7 +155,7 @@ export function SelectField({
     <div className={`field ${className}`}>
       <label htmlFor={input.id ?? name} className="label">
         {label}
-        {required && <span className="text-danger"> *</span>}
+        {required && <span className="text-danger" aria-hidden="true"> *</span>}
       </label>
       <select
         id={input.id ?? name}
