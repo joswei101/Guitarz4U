@@ -41,6 +41,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Launch script state (contains the generated database password)
+.launch-state.json
+
 # Supabase local
 supabase/.branches
 supabase/.temp
