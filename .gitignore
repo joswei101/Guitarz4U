@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# environment files (never commit real secrets)
+.env
+.env.local
+.env.*.local
+.env.test
+
+# test output
+test-results/
+playwright-report/
+tests/.auth/
+
+# Supabase local files
+supabase/.temp/
+supabase/.branches/
+supabase/signing_keys.json
+
+# netlify
+.netlify/
+
+# misc
+.DS_Store
+*.log
+backups/

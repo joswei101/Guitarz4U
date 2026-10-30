@@ -1,0 +1,39 @@
+# OPTIONAL weekly database backup, encrypted with your own passphrase and kept
+# as a GitHub Actions artifact for 30 days. Download it from the Actions tab.
+# Needs secrets SUPABASE_DB_URL (Supabase → Connect → Session pooler URI, with
+# your password) and BACKUP_PASSPHRASE (a long password you keep safe).
+# Without the passphrase the file cannot be read — do not lose it.
+name: Database backup
+on:
+  schedule:
+    - cron: '41 1 * * 0'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check secrets
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::warning::Backup secrets not set — skipping."; exit 0
+          fi
+          echo "READY=1" >> "$GITHUB_ENV"
+      - uses: supabase/setup-cli@v1
+        if: env.READY == '1'
+        with: { version: 2.122.0 }
+      - if: env.READY == '1'
+        run: |
+          mkdir backup
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/roles.sql --role-only
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/data.sql --use-copy --data-only
+          tar czf backup.tgz backup
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" -c -o "guitarz4u-db-$(date +%F).tgz.gpg" backup.tgz
+      - uses: actions/upload-artifact@v4
+        if: env.READY == '1'
+        with: { name: guitarz4u-db-backup, path: '*.tgz.gpg', retention-days: 30 }

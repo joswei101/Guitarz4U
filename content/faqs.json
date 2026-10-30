@@ -1,0 +1,12 @@
+[
+  {"q": "Can I pay on the website?", "a": "No. The website does not take payments. You arrange payment directly with the owner, usually by EFT. Nothing is treated as paid until the owner has confirmed the funds have been received."},
+  {"q": "Do you deliver or ship guitars?", "a": "No — all purchases are collected in the Sandringham, Johannesburg area. Exact collection details are shared privately once your purchase or reservation is approved."},
+  {"q": "How long does a reservation last?", "a": "A reservation holds a guitar for {{reservation_hours}} hours. The exact expiry time is shown on screen and in your account. A reservation is not a payment or a completed sale."},
+  {"q": "Can I make an offer on a guitar?", "a": "Yes. Use the \"Make an offer\" button on the guitar's page. Offers are reviewed by the owner and are never accepted automatically; we'll reply by WhatsApp or email."},
+  {"q": "Do you buy broken or incomplete guitars?", "a": "Yes. We accept working, broken and incomplete guitars, and guitars that need repair. We do not accept loose parts on their own. Every guitar is inspected in person before we make an offer."},
+  {"q": "Can I give a guitar away?", "a": "Yes. Tick the \"I'd like to give this guitar away free\" option on the Sell page."},
+  {"q": "Will repair work start as soon as I submit the form?", "a": "No. We first arrange drop-off, inspect the guitar and send you a quote with labour and parts shown separately. Work only starts once you approve the quote, and any extra cost also needs your approval."},
+  {"q": "How do I track my repair or submission?", "a": "Create an account (or sign in) before submitting, and you'll see live status updates under My account. You can also ask for an update on WhatsApp."},
+  {"q": "Is there a repair warranty?", "a": "Yes — the warranty period and terms are set out in our Repair quote, approval and warranty terms."},
+  {"q": "Where are you based?", "a": "Sandringham, Johannesburg. For privacy and safety, we don't publish a street address; arrangements are shared privately."}
+]
