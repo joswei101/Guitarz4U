@@ -1,0 +1,19 @@
+# One-click deploy on Render (https://render.com). Uses a persistent disk for the database and photos.
+services:
+  - type: web
+    name: guitarz4u
+    runtime: node
+    plan: starter
+    buildCommand: npm ci
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATA_DIR
+        value: /var/data
+      - key: ADMIN_PASSWORD
+        sync: false
+    disk:
+      name: guitarz4u-data
+      mountPath: /var/data
+      sizeGB: 1

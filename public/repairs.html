@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guitar repairs & setups | Guitarz4U Johannesburg</title>
+<meta name="description" content="Professional guitar setups, restrings, fretwork, nut and saddle work, crack and headstock repairs and neck resets. Book online and track your repair.">
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div id="site-header"></div>
+<main id="main">
+  <section class="page-hero">
+    <div class="wrap">
+      <div class="crumbs"><a href="/">Home</a> / Repairs</div>
+      <h1>Guitar repairs &amp; setups</h1>
+      <p>From a quick restring to a full refret or neck reset. Clear starting prices, a confirmed quote before any work begins, and online tracking from drop-off to collection.</p>
+      <div class="hero-actions" style="margin-top:24px">
+        <a class="btn btn-primary" href="#book">Book a repair</a>
+        <a class="btn btn-outline" style="color:var(--parchment)" href="/track">Track an existing repair</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head"><div><span class="eyebrow">How it works</span><h2>Simple, transparent, tracked</h2></div></div>
+      <div class="steps">
+        <div class="step"><h3>Book online</h3><p>Pick your services and a drop-off date. You'll get a repair reference straight away.</p></div>
+        <div class="step"><h3>Drop off &amp; assess</h3><p>We inspect the guitar with you and confirm a fixed quote. No surprises.</p></div>
+        <div class="step"><h3>We get to work</h3><p>Follow progress online with your reference. We'll message you at each step.</p></div>
+        <div class="step"><h3>Collect &amp; play</h3><p>Pay by EFT or cash on collection, and get back to playing.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-paper" id="services">
+    <div class="wrap">
+      <div class="section-head"><div><span class="eyebrow">Services</span><h2>Repair menu &amp; prices</h2><p>Starting prices in rand. Parts such as strings, fret wire or pickups are quoted separately where noted.</p></div></div>
+      <div class="svc-cats" id="svcCats"><div class="skeleton"></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="book">
+    <div class="wrap">
+      <div class="section-head"><div><span class="eyebrow">Book in</span><h2>Book a repair</h2><p>Tell us about your guitar. We'll confirm your drop-off time by WhatsApp or email.</p></div></div>
+      <div class="book-layout">
+        <form class="panel" id="bookForm" novalidate>
+          <h3>1. Your guitar</h3>
+          <div class="field-row">
+            <div class="field"><label for="b-type">Type</label><select id="b-type" name="guitar_type"></select></div>
+            <div class="field"><label for="b-brand">Brand</label><input id="b-brand" name="guitar_brand" placeholder="e.g. Fender"></div>
+          </div>
+          <div class="field"><label for="b-model">Model (optional)</label><input id="b-model" name="guitar_model" placeholder="e.g. Telecaster"></div>
+
+          <h3 style="margin-top:12px">2. What does it need?</h3>
+          <div class="field"><span class="label">Services (choose any)</span><div class="svc-picker" id="svcPicker"></div></div>
+          <div class="field"><label for="b-issue">Describe the problem</label><textarea id="b-issue" name="issue" placeholder="e.g. Buzzing on the low E around the 5th fret, action feels high, crackle in the volume pot…"></textarea><span class="hint">Not sure what you need? Just describe it and we'll advise.</span></div>
+
+          <h3 style="margin-top:12px">3. Your details</h3>
+          <div class="field"><label for="b-name">Full name</label><input id="b-name" name="name" required autocomplete="name"></div>
+          <div class="field-row">
+            <div class="field"><label for="b-email">Email</label><input id="b-email" name="email" type="email" required autocomplete="email"></div>
+            <div class="field"><label for="b-phone">Phone / WhatsApp</label><input id="b-phone" name="phone" type="tel" required autocomplete="tel"></div>
+          </div>
+          <div class="field"><label for="b-date">Preferred drop-off date</label><input id="b-date" name="dropoff_date" type="date"><span class="hint">We'll confirm a time that suits you both.</span></div>
+          <button class="btn btn-primary btn-block" type="submit">Request booking</button>
+          <div class="form-msg" id="bookMsg" role="alert"></div>
+        </form>
+        <aside>
+          <div class="panel">
+            <h3>Your booking</h3>
+            <div id="summary" style="font-size:.92rem;color:var(--ink-soft)">No services selected yet.</div>
+            <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px;display:flex;justify-content:space-between;align-items:baseline">
+              <span class="label">Estimate from</span><span class="price" id="estimate">R0</span>
+            </div>
+            <p style="font-size:.8rem;color:var(--ink-soft);margin:8px 0 0">Final price confirmed at drop-off after inspection. Payment on collection by EFT or cash.</p>
+          </div>
+          <div class="panel" style="margin-top:16px">
+            <h3>Workshop hours</h3>
+            <p class="pre" data-setting="hours" style="font-size:.92rem;margin:0"></p>
+            <a class="btn btn-whatsapp btn-sm" style="margin-top:14px" data-wa="Hi Guitarz4U, I have a question about a repair: " href="#" target="_blank" rel="noopener">Ask a question</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-paper">
+    <div class="wrap faq" style="max-width:820px">
+      <span class="eyebrow">Good to know</span><h2 style="margin-bottom:16px">Repair FAQ</h2>
+      <details><summary>How often should I get a setup?</summary><p>Once or twice a year for most players, and whenever you change string gauge or notice buzzing, high action or tuning problems. South Africa's seasonal humidity swings can move necks noticeably.</p></details>
+      <details><summary>Do I need to book, or can I walk in?</summary><p>Booking online means we can plan workshop time and you'll get a tracking reference. Walk-ins are welcome during workshop hours; we'll book you in on the spot.</p></details>
+      <details><summary>Will you start work without my approval?</summary><p>Never. We inspect the guitar, confirm a quote, and only start once you've agreed. If we find anything unexpected during the work, we'll check with you first.</p></details>
+      <details><summary>How do I pay?</summary><p>Payment is due on collection, by EFT or cash. For larger jobs like refrets or neck resets we may ask for a deposit to cover parts.</p></details>
+      <details><summary>What happens if I can't collect right away?</summary><p>No problem. We'll keep your guitar safe for up to 30 days after it's ready. After that, please get in touch so we can arrange something.</p></details>
+    </div>
+  </section>
+</main>
+<div id="site-footer"></div>
+<script src="/js/common.js"></script>
+<script>
+(async () => {
+  const { api, esc, zar } = G4U;
+  const CAT_INTRO = {
+    'Setups & Restrings': 'Make your guitar play the way it should: low, even action, accurate intonation and stable tuning.',
+    'Fretwork': 'Buzz, choking and worn grooves fixed with precise levelling, crowning and refretting.',
+    'Structural & Finish': 'Nuts, saddles, cracks, breaks and neck resets, done properly and built to last.'
+  };
+  const [services, meta] = await Promise.all([api('/api/services'), api('/api/meta')]);
+  const cats = [...new Set(services.map(s => s.category))];
+  const priceText = s => `${/from/i.test(s.price_note) ? 'from ' : ''}${zar(s.price_from)}`;
+  const noteText = s => s.price_note.replace(/^from,?\s*/i, '');
+
+  document.getElementById('svcCats').innerHTML = cats.map(c => `
+    <div class="svc-cat"><h3>${esc(c)}</h3><p>${esc(CAT_INTRO[c] || '')}</p>
+      <div class="svc-list">${services.filter(s => s.category === c).map(s => `
+        <div class="svc">
+          <div class="svc-top"><span class="svc-name">${esc(s.name)}</span><span class="svc-price">${priceText(s)}${noteText(s) ? `<small>${esc(noteText(s))}</small>` : ''}</span></div>
+          <p>${esc(s.description)}</p>
+          ${s.turnaround ? `<span class="svc-turn">${G4U.icons.clock} Typical turnaround: ${esc(s.turnaround)}</span>` : ''}
+        </div>`).join('')}</div>
+    </div>`).join('') || '<div class="empty">Services are being updated. Please contact us for a quote.</div>';
+
+  document.getElementById('b-type').innerHTML = [...meta.types, 'Other'].map(t => `<option>${esc(t)}</option>`).join('');
+  const picker = document.getElementById('svcPicker');
+  picker.innerHTML = cats.map(c => `<div class="grp">${esc(c)}</div>` + services.filter(s => s.category === c).map(s => `
+    <label class="check"><input type="checkbox" name="svc" value="${s.id}"><span>${esc(s.name)} <small>${priceText(s)}${s.turnaround ? ' · ' + esc(s.turnaround) : ''}</small></span></label>`).join('')).join('');
+
+  const pre = G4U.qs('service');
+  if (pre) { const cb = picker.querySelector(`input[value="${CSS.escape(pre)}"]`); if (cb) cb.checked = true; }
+
+  function updateSummary() {
+    const chosen = [...picker.querySelectorAll('input:checked')].map(i => services.find(s => s.id === Number(i.value)));
+    document.getElementById('summary').innerHTML = chosen.length
+      ? `<ul style="padding-left:18px;margin:0">${chosen.map(s => `<li>${esc(s.name)}: ${priceText(s)}</li>`).join('')}</ul>`
+      : 'No services selected yet.';
+    document.getElementById('estimate').textContent = zar(chosen.reduce((a, s) => a + s.price_from, 0));
+  }
+  picker.addEventListener('change', updateSummary);
+  updateSummary();
+
+  const dateInput = document.getElementById('b-date');
+  dateInput.min = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
+
+  const form = document.getElementById('bookForm');
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const msg = document.getElementById('bookMsg');
+    const ids = [...picker.querySelectorAll('input:checked')].map(i => Number(i.value));
+    if (!form.checkValidity()) { msg.className = 'form-msg error'; msg.textContent = 'Please add your name, a valid email and phone number.'; form.reportValidity(); return; }
+    if (!ids.length && !form.elements.issue.value.trim()) { msg.className = 'form-msg error'; msg.textContent = 'Choose at least one service or describe the problem.'; return; }
+    const btn = form.querySelector('button[type=submit]'); btn.disabled = true; msg.textContent = '';
+    const d = G4U.formData(form); delete d.svc;
+    try {
+      const r = await api('/api/repairs', { method: 'POST', body: { ...d, service_ids: ids } });
+      form.innerHTML = `<div class="success-box"><span class="eyebrow">Booking requested</span><h3>Thanks, ${esc(d.name.split(' ')[0])}! We'll be in touch to confirm.</h3>
+        <p>Your repair reference</p><div class="refcode">${esc(r.ref)}</div>
+        <p style="font-size:.92rem;color:var(--ink-soft)">Keep this safe. You can track your repair any time using this reference and your email address.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn btn-primary" href="/track?ref=${encodeURIComponent(r.ref)}">Track this repair</a>
+        <a class="btn btn-whatsapp" target="_blank" rel="noopener" href="${G4U.waLink(`Hi Guitarz4U, I've just booked a repair. Reference ${r.ref}.`)}">${G4U.icons.whatsapp} WhatsApp us</a></div></div>`;
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) { msg.className = 'form-msg error'; msg.textContent = err.message; btn.disabled = false; }
+  });
+})();
+</script>
+</body>
+</html>

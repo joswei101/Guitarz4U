@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shop second-hand guitars | Guitarz4U</title>
+<meta name="description" content="Browse inspected second-hand electric, acoustic, bass and classical guitars for sale in South Africa.">
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div id="site-header"></div>
+<main id="main">
+  <section class="page-hero">
+    <div class="wrap">
+      <div class="crumbs"><a href="/">Home</a> / Shop</div>
+      <h1>Shop second-hand guitars</h1>
+      <p>Every instrument is inspected and set up before it's listed. Reserve online and pay by EFT or cash on collection.</p>
+    </div>
+  </section>
+  <section class="section-tight">
+    <div class="wrap">
+      <div class="chips" id="typeChips" role="group" aria-label="Guitar type"></div>
+      <div class="shop-layout">
+        <form class="filters" id="filters" aria-label="Filters">
+          <h3>Filter</h3>
+          <div class="field"><label for="q">Search</label><input id="q" name="q" type="search" placeholder="Brand, model…"></div>
+          <div class="field"><label for="condition">Condition</label><select id="condition" name="condition"><option value="">Any condition</option></select></div>
+          <div class="field-row">
+            <div class="field"><label for="min">Min (R)</label><input id="min" name="min" type="number" min="0" step="500" inputmode="numeric"></div>
+            <div class="field"><label for="max">Max (R)</label><input id="max" name="max" type="number" min="0" step="500" inputmode="numeric"></div>
+          </div>
+          <div class="field"><label for="status">Show</label><select id="status" name="status"><option value="">For sale</option><option value="all">For sale &amp; sold</option><option value="sold">Recently sold</option></select></div>
+          <button type="button" class="btn btn-outline btn-sm btn-block" id="reset">Clear filters</button>
+        </form>
+        <div>
+          <div class="shop-bar">
+            <button type="button" class="btn btn-outline btn-sm filter-toggle" id="filterToggle" aria-controls="filters" aria-expanded="false">Filters</button>
+            <span class="count" id="count" aria-live="polite"></span>
+            <label class="visually-hidden" for="sort">Sort by</label>
+            <select id="sort" form="filters" name="sort">
+              <option value="newest">Newest first</option><option value="price_asc">Price: low to high</option><option value="price_desc">Price: high to low</option><option value="brand">Brand A–Z</option>
+            </select>
+          </div>
+          <div class="grid" id="results"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="site-footer"></div>
+<script src="/js/common.js"></script>
+<script>
+(async () => {
+  const { api, card, esc } = G4U;
+  const form = document.getElementById('filters');
+  const sort = document.getElementById('sort');
+  const meta = await api('/api/meta');
+  const params = new URLSearchParams(location.search);
+  let type = params.get('type') || '';
+
+  document.getElementById('condition').innerHTML += meta.conditions.map(c => `<option>${esc(c)}</option>`).join('');
+  for (const k of ['q', 'condition', 'min', 'max', 'status']) if (params.get(k)) form.elements[k].value = params.get(k);
+  if (params.get('sort')) sort.value = params.get('sort');
+
+  const chips = document.getElementById('typeChips');
+  function renderChips() {
+    chips.innerHTML = ['', ...meta.types].map(t => `<button type="button" class="chip" data-type="${esc(t)}" aria-pressed="${t === type}">${t ? esc(t) : 'All guitars'}</button>`).join('');
+  }
+  chips.addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    type = b.dataset.type; renderChips(); load();
+  });
+  renderChips();
+
+  let timer;
+  async function load() {
+    const p = new URLSearchParams();
+    if (type) p.set('type', type);
+    for (const k of ['q', 'condition', 'min', 'max', 'status']) if (form.elements[k].value) p.set(k, form.elements[k].value);
+    if (sort.value !== 'newest') p.set('sort', sort.value);
+    history.replaceState(null, '', p.toString() ? `?${p}` : location.pathname);
+    const res = document.getElementById('results');
+    try {
+      const list = await api(`/api/guitars?${p}`);
+      document.getElementById('count').textContent = `${list.length} guitar${list.length === 1 ? '' : 's'}`;
+      res.innerHTML = list.length ? list.map(card).join('') : '<div class="empty" style="grid-column:1/-1">No guitars match those filters. Try widening your search, or <a href="/contact">tell us what you’re looking for</a>.</div>';
+    } catch (e) {
+      res.innerHTML = `<div class="empty" style="grid-column:1/-1">${esc(e.message)}</div>`;
+    }
+  }
+  form.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(load, 250); });
+  form.addEventListener('submit', e => { e.preventDefault(); load(); });
+  sort.addEventListener('change', load);
+  document.getElementById('reset').addEventListener('click', () => { form.reset(); type = ''; renderChips(); load(); });
+  const ft = document.getElementById('filterToggle');
+  ft.addEventListener('click', () => { const o = form.classList.toggle('open'); ft.setAttribute('aria-expanded', String(o)); });
+  load();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact | Guitarz4U</title>
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div id="site-header"></div>
+<main id="main">
+  <section class="page-hero">
+    <div class="wrap">
+      <div class="crumbs"><a href="/">Home</a> / Contact</div>
+      <h1>Get in touch</h1>
+      <p>Questions about a guitar, a repair, or arranging a viewing? WhatsApp is the quickest way to reach us.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap contact-grid">
+      <div class="panel">
+        <h3 data-setting="owner_name">Shua Weinfas</h3>
+        <div class="contact-line"><span id="ic-wa"></span><div><a data-wa="Hi Guitarz4U, " href="#" target="_blank" rel="noopener">WhatsApp <span data-setting="phone"></span></a><div style="font-size:.85rem;color:var(--ink-soft)">Fastest reply</div></div></div>
+        <div class="contact-line"><span id="ic-ph"></span><a id="telLink" href="#"><span data-setting="phone"></span></a></div>
+        <div class="contact-line"><span id="ic-mail"></span><a data-mailto href="#"></a></div>
+        <div class="contact-line"><span id="ic-pin"></span><div><span data-setting="area"></span><div style="font-size:.85rem;color:var(--ink-soft)">Viewings and drop-offs by appointment</div></div></div>
+        <div class="contact-line" style="border:0"><span id="ic-clock"></span><span class="pre" data-setting="hours"></span></div>
+      </div>
+      <form class="panel" id="msgForm" novalidate>
+        <h3>Send a message</h3>
+        <div class="field-row">
+          <div class="field"><label for="m-name">Name</label><input id="m-name" name="name" required autocomplete="name"></div>
+          <div class="field"><label for="m-email">Email</label><input id="m-email" name="email" type="email" required autocomplete="email"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="m-phone">Phone (optional)</label><input id="m-phone" name="phone" type="tel" autocomplete="tel"></div>
+          <div class="field"><label for="m-subject">Topic</label><select id="m-subject" name="subject"><option>Buying a guitar</option><option>Repairs</option><option>Viewing / collection</option><option>Something else</option></select></div>
+        </div>
+        <div class="field"><label for="m-body">Message</label><textarea id="m-body" name="body" required></textarea></div>
+        <button class="btn btn-primary" type="submit">Send message</button>
+        <div class="form-msg" id="msgMsg" role="alert"></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="section section-paper" id="review">
+    <div class="wrap" style="max-width:720px">
+      <span class="eyebrow">Reviews</span><h2 style="margin-bottom:8px">Leave a review</h2>
+      <p style="color:var(--ink-soft)">Bought a guitar or had a repair done? We'd love to hear how it went. Reviews appear on the site once approved.</p>
+      <form class="panel" id="reviewForm" novalidate>
+        <div class="field"><span class="label" id="ratingLbl">Rating</span>
+          <div class="star-input" role="radiogroup" aria-labelledby="ratingLbl">
+            <input type="radio" id="s5" name="rating" value="5"><label for="s5" title="5 stars">★</label>
+            <input type="radio" id="s4" name="rating" value="4"><label for="s4" title="4 stars">★</label>
+            <input type="radio" id="s3" name="rating" value="3"><label for="s3" title="3 stars">★</label>
+            <input type="radio" id="s2" name="rating" value="2"><label for="s2" title="2 stars">★</label>
+            <input type="radio" id="s1" name="rating" value="1"><label for="s1" title="1 star">★</label>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="rv-name">Your name</label><input id="rv-name" name="name" required></div>
+          <div class="field"><label for="rv-kind">I…</label><select id="rv-kind" name="kind"><option value="purchase">Bought a guitar</option><option value="repair">Had a repair</option></select></div>
+        </div>
+        <div class="field"><label for="rv-body">Your review</label><textarea id="rv-body" name="body" required></textarea></div>
+        <button class="btn btn-dark" type="submit">Submit review</button>
+        <div class="form-msg" id="reviewMsg" role="alert"></div>
+      </form>
+    </div>
+  </section>
+</main>
+<div id="site-footer"></div>
+<script src="/js/common.js"></script>
+<script>
+(async () => {
+  const { api, icons } = G4U;
+  document.getElementById('ic-wa').innerHTML = icons.whatsapp;
+  document.getElementById('ic-ph').innerHTML = icons.phone;
+  document.getElementById('ic-mail').innerHTML = icons.mail;
+  document.getElementById('ic-pin').innerHTML = icons.pin;
+  document.getElementById('ic-clock').innerHTML = icons.clock;
+  document.querySelectorAll('.contact-line > span:first-child svg').forEach(s => s.style.cssText = 'width:20px;height:20px;color:var(--amber-dark)');
+  const s = await G4U.ready;
+  document.getElementById('telLink').href = 'tel:+' + s.whatsapp;
+
+  function bind(id, url, msgId, done) {
+    const f = document.getElementById(id);
+    f.addEventListener('submit', async e => {
+      e.preventDefault();
+      const m = document.getElementById(msgId);
+      if (!f.checkValidity()) { m.className = 'form-msg error'; m.textContent = 'Please complete the required fields.'; f.reportValidity(); return; }
+      const btn = f.querySelector('button'); btn.disabled = true;
+      try { await api(url, { method: 'POST', body: G4U.formData(f) }); f.reset(); m.className = 'form-msg ok'; m.textContent = done; }
+      catch (err) { m.className = 'form-msg error'; m.textContent = err.message; }
+      btn.disabled = false;
+    });
+  }
+  bind('msgForm', '/api/messages', 'msgMsg', 'Thanks, your message has been sent. We’ll get back to you soon.');
+  bind('reviewForm', '/api/reviews', 'reviewMsg', 'Thank you! Your review will appear once it’s approved.');
+})();
+</script>
+</body>
+</html>

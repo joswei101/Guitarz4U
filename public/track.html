@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Track a repair | Guitarz4U</title>
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div id="site-header"></div>
+<main id="main">
+  <section class="page-hero">
+    <div class="wrap">
+      <div class="crumbs"><a href="/">Home</a> / Track a repair</div>
+      <h1>Track your repair</h1>
+      <p>Enter the reference from your booking confirmation (it starts with RPR-) and the email address you booked with.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap" style="max-width:760px">
+      <form class="panel" id="trackForm">
+        <div class="field-row">
+          <div class="field"><label for="t-ref">Repair reference</label><input id="t-ref" name="ref" required placeholder="RPR-XXXXXX" autocapitalize="characters" style="text-transform:uppercase"></div>
+          <div class="field"><label for="t-email">Email</label><input id="t-email" name="email" type="email" required autocomplete="email"></div>
+        </div>
+        <button class="btn btn-primary" type="submit">Check status</button>
+        <div class="form-msg" id="trackMsg" role="alert"></div>
+      </form>
+      <div id="result" style="margin-top:24px" aria-live="polite"></div>
+    </div>
+  </section>
+</main>
+<div id="site-footer"></div>
+<script src="/js/common.js"></script>
+<script>
+(() => {
+  const { api, esc, zar, date, dateTime } = G4U;
+  const FLOW = ['requested', 'booked', 'received', 'in_progress', 'ready', 'collected'];
+  const FLOW_LABELS = ['Requested', 'Booked', 'Received', 'In progress', 'Ready', 'Collected'];
+  const form = document.getElementById('trackForm');
+  if (G4U.qs('ref')) form.elements.ref.value = G4U.qs('ref');
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const msg = document.getElementById('trackMsg');
+    const out = document.getElementById('result');
+    msg.textContent = ''; out.innerHTML = '';
+    try {
+      const r = await api('/api/repairs/track', { method: 'POST', body: G4U.formData(form) });
+      const step = r.status === 'awaiting_parts' ? FLOW.indexOf('in_progress') : FLOW.indexOf(r.status);
+      const pillCls = r.status === 'ready' ? 'pill-green' : r.status === 'cancelled' ? 'pill-rust' : r.status === 'collected' ? '' : 'pill-amber';
+      out.innerHTML = `
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
+            <div><span class="eyebrow">${esc(r.ref)}</span><h2 style="font-size:1.5rem">${esc([r.guitar_brand, r.guitar_model].filter(Boolean).join(' ') || r.guitar_type)}</h2></div>
+            <span class="pill ${pillCls}" style="font-size:.85rem">${esc(r.status_label)}</span>
+          </div>
+          ${r.status !== 'cancelled' ? `<div class="progress" aria-hidden="true">${FLOW.map((_, i) => `<span class="${i <= step ? 'on' : ''}"></span>`).join('')}</div>
+          <div class="progress-labels" aria-hidden="true">${FLOW_LABELS.map(l => `<span>${l}</span>`).join('')}</div>` : ''}
+          <table class="specs"><tbody>
+            ${r.service_names ? `<tr><th>Services</th><td>${esc(r.service_names)}</td></tr>` : ''}
+            ${r.issue ? `<tr><th>Your notes</th><td class="pre">${esc(r.issue)}</td></tr>` : ''}
+            ${r.dropoff_date ? `<tr><th>Drop-off</th><td>${esc(date(r.dropoff_date))}</td></tr>` : ''}
+            <tr><th>Quote</th><td>${r.quote != null ? `<strong>${zar(r.quote)}</strong> (payable on collection)` : 'To be confirmed after inspection'}</td></tr>
+          </tbody></table>
+          ${r.customer_note ? `<div class="notice"><strong>Note from the workshop:</strong><br><span class="pre">${esc(r.customer_note)}</span></div>` : ''}
+          ${r.status === 'ready' ? `<div class="notice" style="margin-top:12px;background:#E3F0E4;border-color:#B8D6BC;color:#2E5E3A"><strong>Your guitar is ready!</strong> Collect during workshop hours. Payment by EFT or cash on collection.</div>` : ''}
+          <h3 style="font-size:1.1rem;margin-top:22px">History</h3>
+          <ul class="timeline">${r.events.slice().reverse().map((ev, i) => `<li class="${i === 0 ? 'current' : ''}"><div class="t-label">${esc(ev.label)}</div><div class="t-date">${esc(dateTime(ev.created_at))}</div>${ev.note ? `<div class="t-note">${esc(ev.note)}</div>` : ''}</li>`).join('')}</ul>
+          <a class="btn btn-whatsapp btn-sm" target="_blank" rel="noopener" href="${G4U.waLink(`Hi Guitarz4U, I'm checking on repair ${r.ref}.`)}">${G4U.icons.whatsapp} Message the workshop</a>
+        </div>`;
+    } catch (err) { msg.className = 'form-msg error'; msg.textContent = err.message; }
+  });
+})();
+</script>
+</body>
+</html>

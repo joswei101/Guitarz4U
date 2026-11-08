@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guitar | Guitarz4U</title>
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div id="site-header"></div>
+<main id="main">
+  <section class="section-tight">
+    <div class="wrap" id="content"><div class="skeleton"></div></div>
+  </section>
+  <section class="section section-paper" id="moreSection" hidden>
+    <div class="wrap">
+      <div class="section-head"><div><span class="eyebrow">You might also like</span><h2>More guitars</h2></div><a class="btn btn-outline" href="/shop">View all</a></div>
+      <div class="grid" id="more"></div>
+    </div>
+  </section>
+</main>
+<div id="site-footer"></div>
+<script src="/js/common.js"></script>
+<script>
+(async () => {
+  const { api, esc, zar, card, placeholder } = G4U;
+  const el = document.getElementById('content');
+  const id = G4U.qs('id');
+  let g;
+  try { g = await api(`/api/guitars/${encodeURIComponent(id)}`); }
+  catch {
+    el.innerHTML = '<div class="empty"><h2>Guitar not found</h2><p>It may have been sold or removed.</p><a class="btn btn-primary" href="/shop">Back to the shop</a></div>';
+    return;
+  }
+  await G4U.ready;
+  const name = `${g.brand} ${g.model}`;
+  document.title = `${name} | ${zar(g.price)} | Guitarz4U`;
+
+  const specs = (g.specs || '').split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const i = l.indexOf(':');
+    return i > 0 ? [l.slice(0, i), l.slice(i + 1)] : ['', l];
+  });
+  const statusPill = { available: '<span class="pill pill-green">Available</span>', reserved: '<span class="pill pill-amber">Reserved</span>', sold: '<span class="pill pill-rust">Sold</span>' }[g.status] || '';
+  const waText = `Hi Guitarz4U, I'm interested in the ${name} (${zar(g.price)}) on your website: ${location.href}`;
+
+  el.innerHTML = `
+    <div class="crumbs" style="color:var(--ink-soft)"><a href="/" style="color:inherit">Home</a> / <a href="/shop" style="color:inherit">Shop</a> / ${esc(name)}</div>
+    <div class="detail">
+      <div>
+        <div class="gallery-main" id="mainPhoto">${g.photos.length ? `<img src="${esc(g.photos[0])}" alt="${esc(name)}">` : placeholder(g.type)}</div>
+        ${g.photos.length > 1 ? `<div class="thumbs" id="thumbs">${g.photos.map((p, i) => `<button type="button" data-i="${i}" aria-label="Photo ${i + 1}" aria-current="${i === 0}"><img src="${esc(p)}" alt=""></button>`).join('')}</div>` : ''}
+        ${g.description ? `<div style="margin-top:28px"><h2 style="font-size:1.3rem;margin-bottom:10px">About this guitar</h2><p class="pre">${esc(g.description)}</p></div>` : ''}
+        ${specs.length ? `<h2 style="font-size:1.3rem;margin-top:24px">Specifications</h2><table class="specs"><tbody>
+          <tr><th>Type</th><td>${esc(g.type)}</td></tr>${g.year ? `<tr><th>Year</th><td>${esc(g.year)}</td></tr>` : ''}<tr><th>Condition</th><td>${esc(g.condition)}</td></tr>
+          ${specs.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</tbody></table>` : ''}
+      </div>
+      <div>
+        <span class="eyebrow">${esc(g.type)}${g.year ? ' · ' + esc(g.year) : ''}</span>
+        <h1>${esc(name)}</h1>
+        <div class="price">${zar(g.price)}</div>
+        <div class="status-line">${statusPill}<span class="pill">Condition: ${esc(g.condition)}</span></div>
+        <div class="panel" id="reservePanel"></div>
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <a class="btn btn-whatsapp" href="${G4U.waLink(waText)}" target="_blank" rel="noopener">${G4U.icons.whatsapp} Ask on WhatsApp</a>
+          <a class="btn btn-outline" href="mailto:${esc(G4U.settings.email)}?subject=${encodeURIComponent('Enquiry: ' + name)}">Email us</a>
+        </div>
+        <ul style="list-style:none;padding:0;margin:22px 0 0;display:grid;gap:10px;font-size:.92rem;color:var(--ink-soft)">
+          <li style="display:flex;gap:10px"><span style="width:20px;color:var(--amber-dark)">${G4U.icons.check}</span>Inspected and set up in our workshop</li>
+          <li style="display:flex;gap:10px"><span style="width:20px;color:var(--amber-dark)">${G4U.icons.truck}</span>${esc(G4U.settings.delivery_note || '')}</li>
+          <li style="display:flex;gap:10px"><span style="width:20px;color:var(--amber-dark)">${G4U.icons.shield}</span>Viewings welcome by appointment</li>
+        </ul>
+      </div>
+    </div>`;
+
+  const thumbs = document.getElementById('thumbs');
+  if (thumbs) thumbs.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.querySelector('#mainPhoto img').src = g.photos[b.dataset.i];
+    thumbs.querySelectorAll('button').forEach(x => x.setAttribute('aria-current', String(x === b)));
+  });
+
+  const panel = document.getElementById('reservePanel');
+  if (g.status !== 'available') {
+    panel.innerHTML = g.status === 'sold'
+      ? `<h3>This guitar has been sold</h3><p style="margin:0">Looking for something similar? <a href="/shop?type=${encodeURIComponent(g.type)}">Browse ${esc(g.type.toLowerCase())} guitars</a> or let us know what you're after.</p>`
+      : `<h3>Currently reserved</h3><p style="margin:0">Someone has reserved this guitar. If the sale falls through it'll be available again. WhatsApp us to go on the waiting list.</p>`;
+  } else {
+    panel.innerHTML = `
+      <h3>Reserve this guitar</h3>
+      <p style="font-size:.9rem;color:var(--ink-soft)">No payment online. We hold the guitar for you and get in touch within one working day to arrange payment (EFT or cash) and collection or courier.</p>
+      <form id="reserveForm" novalidate>
+        <div class="field"><label for="r-name">Full name</label><input id="r-name" name="name" required autocomplete="name"></div>
+        <div class="field-row">
+          <div class="field"><label for="r-email">Email</label><input id="r-email" name="email" type="email" required autocomplete="email"></div>
+          <div class="field"><label for="r-phone">Phone / WhatsApp</label><input id="r-phone" name="phone" type="tel" required autocomplete="tel" placeholder="e.g. 082 123 4567"></div>
+        </div>
+        <div class="field"><span class="label">How would you like to get it?</span>
+          <div class="radio-row">
+            <label class="check"><input type="radio" name="fulfilment" value="collection" checked><span>Collect<small>${esc(G4U.settings.area || '')}</small></span></label>
+            <label class="check"><input type="radio" name="fulfilment" value="courier"><span>Courier<small>Quoted separately</small></span></label>
+          </div>
+        </div>
+        <div class="field" id="addrField" hidden><label for="r-address">Delivery address</label><textarea id="r-address" name="address" rows="3" style="min-height:70px" autocomplete="street-address"></textarea></div>
+        <div class="field"><label for="r-msg">Message (optional)</label><textarea id="r-msg" name="message" rows="3" style="min-height:70px" placeholder="Questions, preferred viewing time…"></textarea></div>
+        <button class="btn btn-primary btn-block" type="submit">Reserve for ${zar(g.price)}</button>
+        <div class="form-msg" id="reserveMsg" role="alert"></div>
+      </form>`;
+    const f = document.getElementById('reserveForm');
+    f.addEventListener('change', () => { document.getElementById('addrField').hidden = f.elements.fulfilment.value !== 'courier'; });
+    f.addEventListener('submit', async e => {
+      e.preventDefault();
+      const msg = document.getElementById('reserveMsg');
+      if (!f.checkValidity()) { msg.className = 'form-msg error'; msg.textContent = 'Please fill in your name, a valid email and phone number.'; f.reportValidity(); return; }
+      const btn = f.querySelector('button[type=submit]'); btn.disabled = true; msg.textContent = '';
+      try {
+        const r = await api('/api/reservations', { method: 'POST', body: { ...G4U.formData(f), guitar_id: g.id } });
+        panel.innerHTML = `<div class="success-box"><span class="eyebrow">Reserved</span><h3>It's yours. We're holding it.</h3><p>Your reference</p><div class="refcode">${esc(r.ref)}</div><p style="font-size:.92rem;color:var(--ink-soft)">We'll contact you within one working day to confirm and arrange payment. Use this reference when you pay.</p><a class="btn btn-whatsapp" target="_blank" rel="noopener" href="${G4U.waLink(`Hi Guitarz4U, I've just reserved the ${name}. My reference is ${r.ref}.`)}">${G4U.icons.whatsapp} Let us know on WhatsApp</a></div>`;
+        panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (err) {
+        msg.className = 'form-msg error'; msg.textContent = err.message; btn.disabled = false;
+      }
+    });
+  }
+
+  try {
+    const more = (await api(`/api/guitars?type=${encodeURIComponent(g.type)}&limit=5`)).filter(x => x.id !== g.id).slice(0, 4);
+    if (more.length) { document.getElementById('more').innerHTML = more.map(card).join(''); document.getElementById('moreSection').hidden = false; }
+  } catch {}
+})();
+</script>
+</body>
+</html>

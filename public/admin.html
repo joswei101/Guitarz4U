@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Owner admin | Guitarz4U</title>
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin">
+<div id="login" class="login-wrap" hidden>
+  <form class="panel login" id="loginForm">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><img src="/images/favicon.svg" width="40" height="40" alt=""><h1 style="font-size:1.4rem">Guitarz4U owner login</h1></div>
+    <div class="field"><label for="pw">Password</label><input id="pw" type="password" name="password" required autocomplete="current-password" autofocus></div>
+    <button class="btn btn-primary btn-block" type="submit">Log in</button>
+    <div class="form-msg error" id="loginMsg" role="alert"></div>
+    <p style="font-size:.82rem;color:var(--ink-soft);margin:14px 0 0"><a href="/">← Back to website</a></p>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <aside class="side">
+    <a class="brand" href="/" target="_blank"><img src="/images/favicon.svg" width="34" height="34" alt=""><span class="brand-word" style="font-size:1.1rem">Guitarz<span>4U</span></span></a>
+    <nav id="tabs">
+      <button data-tab="dashboard">Dashboard</button>
+      <button data-tab="inventory">Inventory</button>
+      <button data-tab="reservations">Reservations <span class="count" data-count="pendingReservations"></span></button>
+      <button data-tab="repairs">Repairs <span class="count" data-count="newRepairs"></span></button>
+      <button data-tab="services">Repair services</button>
+      <button data-tab="messages">Messages <span class="count" data-count="unreadMessages"></span></button>
+      <button data-tab="reviews">Reviews <span class="count" data-count="pendingReviews"></span></button>
+      <button data-tab="settings">Settings</button>
+    </nav>
+    <button class="btn btn-outline btn-sm" id="logout" style="margin-top:auto;color:var(--parchment)">Log out</button>
+  </aside>
+  <main class="admin-main" id="view"></main>
+</div>
+
+<dialog id="modal"><form method="dialog" class="modal-inner" id="modalForm"></form></dialog>
+
+<script src="/js/common.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>
